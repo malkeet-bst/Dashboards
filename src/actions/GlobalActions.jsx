@@ -3,13 +3,13 @@ import FluxApp from '../utils/FluxApp'
 class GlobalActions {
   constructor() {
     this.generateActions(
-      'fetchRotationData',
-      'viewPartnerData',
-      'deleteRotationBanner',
-      'addRotation',
-      'setSelectedPartner',
-      'updateRotation',
-      'setCurrentView'
+      'saveDraft',
+      'setChannel',
+      'setCurrentView',
+      'saveAudienceDraft',
+      'publishCampaign',
+      'copyTemplate',
+      'viewAllData'
     )
   }
 }

@@ -4,7 +4,9 @@
   "private": true,
   "dependencies": {
     "alt": "^0.18.6",
+    "antd": "^3.12.3",
     "mdbreact": "^4.8.7",
+    "moment": "^2.23.0",
     "react": "^16.6.3",
     "react-bootstrap-dropdown-menu": "^1.1.15",
     "react-dom": "^16.6.3",
