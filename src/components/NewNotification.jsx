@@ -8,11 +8,16 @@ import BellNotification from "./BellNotification";
 class NewNotification extends React.Component {
 
   onChannelSelection = () => {
+    if (document.getElementById('notification-form')) {
+      document.getElementById('notification-form').style.display = 'block'
+    }
     GlobalActions.setCurrentView('home')
     GlobalActions.setChannel('bell')
   }
+
   render() {
-    let { show, channelType, currentView } = this.props;
+    let { show, channelType, currentView ,formData,apiStatus} = this.props;
+
     return (
       <div>
         <If condition={show}>
@@ -34,8 +39,8 @@ class NewNotification extends React.Component {
               </section>
             </If>
           </div>
-          <If condition={channelType === 'bell'}>
-            <BellNotification currentView={currentView} />
+          <If condition={channelType === 'bell' && currentView !='dashboard'}>
+            <BellNotification currentView={currentView} apiStatus ={apiStatus} formData={formData}/>
           </If>
         </If>
       </div>

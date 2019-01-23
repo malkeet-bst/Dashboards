@@ -96,7 +96,6 @@ class ViewAll extends React.Component {
     if (Array.isArray(allData) && allData.length>0) {
       loading = false
     }
-    console.log({ allData })
     return (
       <div>
         <If condition={show}>

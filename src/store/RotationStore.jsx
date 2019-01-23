@@ -10,9 +10,10 @@ export class RotationStore {
     this.apiStatus = null;
     this.currentView = ''
     this.channelType = ''
-    this.templateData=''
-    this.activeTab='new'
+    this.templateData = ''
+    this.activeTab = 'new'
     this.allData = [];
+    this.formData = {}
     this.apiUrl = Utils.getUrlFromInstance(Utils.getCloudInstance());
     this.bindActions(GlobalActions);
     window.RotationStore = this;
@@ -20,6 +21,9 @@ export class RotationStore {
 
   onSetChannel(type) {
     this.channelType = type;
+  }
+  onSaveFormData = (data) => {
+    this.formData = data
   }
   onSetCurrentView(attr) {
     if (typeof attr == 'object') {
@@ -54,32 +58,81 @@ export class RotationStore {
     }, 3000)
   }
   onSaveDraft = async (formData) => {
-    console.log({formData})
+    console.log({ formData })
     let url = `${this.apiUrl}rotation_cms`;
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
       console.log(json)
-    } catch(e) {
+    } catch (e) {
       console.error("Problem", e)
     }
   }
   onSaveAudienceDraft = async (formData) => {
-    console.log({formData})
+    console.log({ formData })
     let url = `${this.apiUrl}rotation_cms`;
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
       console.log(json)
-    } catch(e) {
+    } catch (e) {
       console.error("Problem", e)
     }
   }
-  onPublishCampaign=async () => {
-    console.log('published')
+  onPublishCampaign = async (audienceData) => {
+    let tempData = {}
+    Object.assign(tempData, this.formData);
+    var fd = new FormData();
+    if (audienceData && audienceData[0]) {
+      if (audienceData[0]) {
+        fd.append('filters', audienceData[0])
+        if (audienceData[1]) {
+          fd.append('campaign_start_time', audienceData[1][0])
+          fd.append('campaign_end_time', audienceData[1][1])
+        }
+      } else {
+        fd.append('csv', audienceData[2])
+      }
+    }
+    tempData.notificationMessage.forEach(element => {
+      fd.append('title[]', element.title)
+      fd.append('message[]', element.message)
+      fd.append('locale[]', element.locale)
+    });
+    delete tempData.notificationMessage
+    for (var property in tempData) {
+      fd.append(property, tempData[property]);
+    }
+    fd.append('env', 'prod')
+    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/send'// 'http://cloud.bluestacks.com/notifications/cms/send'
+
+    let response = await fetch(url, {
+      method: "post",
+      headers: {
+        Accept: "application/json"
+      },
+      body: fd
+    });
+    if (response && (response.status === 200 || response.status === 304)) {
+      let user = await response.json();
+      console.log({ user })
+      if (user && user.success) {
+        this.apiStatus = { success: "Campaign created successfully" };
+      } else {
+        this.apiStatus = { error: user.message };
+      }
+    } else {
+      this.apiStatus = { error: "some error occured" };
+    }
+    setTimeout(() => {
+      this.apiStatus = ''
+      this.emitChange();
+    }, 4000)
+    this.emitChange();
+
   }
-  onCopyTemplate=(data)=>{
-    this.templateData=data
+  onCopyTemplate = (data) => {
+    this.templateData = data
     console.log(this.templateData)
   }
 }

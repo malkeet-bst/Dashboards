@@ -23,7 +23,7 @@ class Main extends React.Component {
     this.setState(this.getUpdatedState());
   };
   changeTab = (tab) => {
-    console.log('hey',tab)
+
     GlobalActions.setCurrentView('dashboard',tab)
   }
 
@@ -34,11 +34,10 @@ class Main extends React.Component {
     RotationStore.unlisten(this.onChange);
   };
   render() {
-    let { activeTab,channelType, currentView } = this.state.RotationS
-    console.log({activeTab})
+    let { activeTab,channelType, currentView,formData,apiStatus } = this.state.RotationS
     return <div className="notification-container" >
       <SideBar activeTab={activeTab} changeTab={this.changeTab} />
-      <MainContent channelType={channelType} currentView={currentView} activeTab={activeTab} />
+      <MainContent channelType={channelType} currentView={currentView} activeTab={activeTab} formData={formData} apiStatus={apiStatus}/>
     </div>
   }
 }

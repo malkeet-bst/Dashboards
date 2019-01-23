@@ -9,7 +9,8 @@ class GlobalActions {
       'saveAudienceDraft',
       'publishCampaign',
       'copyTemplate',
-      'viewAllData'
+      'viewAllData',
+      'saveFormData'
     )
   }
 }

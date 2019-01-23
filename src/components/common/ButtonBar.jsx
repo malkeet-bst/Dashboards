@@ -21,13 +21,13 @@ class ButtonBar extends React.Component {
         >
           <span> Back</span>
         </button>
-        <button
+        {/* <button
           type="button"
           onClick={this.props.saveClick}
           className="btn btn-primary btn-md"
         >
           <span> Save as Draft</span>
-        </button>
+        </button> */}
         <button
           type="button"
           onClick={this.props.nextClick}

@@ -11,11 +11,11 @@ class MainContent extends React.Component {
   }
 
   render() {
-    let { activeTab, channelType, currentView } = this.props
+    let { activeTab, channelType, currentView ,formData, apiStatus} = this.props
     return (
       <div className="right-panel">
-        <NewNotification channelType={channelType} currentView={currentView} show={activeTab === 'new'} type={channelType} />
-        <ViewAll show={activeTab === 'view'} />
+        <NewNotification channelType={channelType} currentView={currentView} apiStatus={apiStatus} show={activeTab === 'new'} type={channelType} formData={formData}/>
+        <ViewAll show={activeTab === 'view'} formData={formData}/>
       </div>
     );
   }

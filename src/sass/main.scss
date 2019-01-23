@@ -62,12 +62,17 @@ button:focus {
       }
     }
     .form-group {
+      
       min-height: 35px;
       .close {
         position: absolute;
         top: 24px;
         left: 114px;
       }
+    }
+    .form-group.required .control-label:after {
+      content:"*";
+      color:red;
     }
     .nav-btn {
       display: flex;
