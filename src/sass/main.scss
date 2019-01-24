@@ -55,6 +55,13 @@ button:focus {
     padding: 24px 12px 86px;
     border-radius: 14px;
     border: 2px solid gray;
+    .success-message {
+      display: flex;
+      width: 100%;
+      position: fixed;
+      justify-content: center;
+      bottom: 0;
+    }
     header {
       text-align: center;
       padding: 25px 0 58px;
@@ -79,7 +86,6 @@ button:focus {
       }
     }
     .form-group {
-      
       min-height: 35px;
       .close {
         position: absolute;
@@ -88,8 +94,8 @@ button:focus {
       }
     }
     .form-group.required .control-label:after {
-      content:"*";
-      color:red;
+      content: "*";
+      color: red;
     }
     .nav-btn {
       display: flex;
@@ -103,11 +109,25 @@ button:focus {
       border-top-right-radius: 4px;
       border-right-width: 1px;
     }
-    .view-all{
-      .action-icon{
+    .view-all {
+      .search-filter {
+        display: flex;
+        justify-content: space-between;
+        bottom: 15px;
+        position: relative;
+        .form-control {
+          border-radius: 20px;
+          right: 15px;
+          width: 200px;
+        }
+      }
+      .action-icon {
         cursor: pointer;
       }
     }
   }
 }
-
+.ant-modal-body{
+  max-height: 70vh;
+  overflow: scroll;
+}

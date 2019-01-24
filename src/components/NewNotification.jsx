@@ -11,6 +11,7 @@ class NewNotification extends React.Component {
     if (document.getElementById('notification-form')) {
       document.getElementById('notification-form').style.display = 'block'
     }
+    GlobalActions.saveFormData({});
     GlobalActions.setCurrentView('home')
     GlobalActions.setChannel('bell')
   }
@@ -39,11 +40,11 @@ class NewNotification extends React.Component {
               </section>
             </If>
           </div>
-          <If condition={apiStatus != null && apiStatus.success != null}>
+          {/* <If condition={apiStatus != null && apiStatus.success != null}>
           <div className="alert alert-success" style={{'marginTop':'30px'}}>
             <strong>Success!</strong> {apiStatus && apiStatus.success}
           </div>
-        </If>
+        </If> */}
           <If condition={channelType === 'bell' && currentView !='dashboard'}>
             <BellNotification currentView={currentView} apiStatus ={apiStatus} formData={formData}/>
           </If>

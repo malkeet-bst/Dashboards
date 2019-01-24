@@ -23,7 +23,9 @@ class Main extends React.Component {
     this.setState(this.getUpdatedState());
   };
   changeTab = (tab) => {
-
+    if(tab==='view'){
+      GlobalActions.viewAllData()
+    }
     GlobalActions.setCurrentView('dashboard',tab)
   }
 

@@ -16,8 +16,11 @@ class BellNotification extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      mode: 'ribbon',
       errorObj: {},
+      locale_message_map:{en:{
+        message:'',
+        title:''
+      }},
       newData: {
         'click_action_title': "",
         'click_action_type': "InstallPlay",
@@ -27,7 +30,8 @@ class BellNotification extends React.Component {
         'package_name': "",
         'show_at': "ribbon",
         'sub_tab_id': "",
-        'tile_menu_url': ""
+        'tile_menu_url': "",
+        "show-at":"ribbon"
       },
       // newData: {
       //   'click_action_title': "d",
@@ -40,19 +44,31 @@ class BellNotification extends React.Component {
       //   'sub_tab_id': "sd",
       //   'tile_menu_url': "dsds"
       // },
-      localeCount: [1],
+      localeCount: ['en'],
       removeGifImage: false,
       removeTileImage: false
     };
     this.removeLocalerow = this.removeLocalerow.bind(this)
   }
   componentDidMount = () => {
+    console.log('inside bell')
     if (document.getElementById('notification-form')) {
       document.getElementById('notification-form').style.display = 'block'
     }
     if (document.getElementById('audience')) {
       document.getElementById('audience').style.display = 'none'
     }
+    let newData = this.state.newData;
+    let copyData=this.props.formData
+    if(Object.entries(copyData).length !== 0 && copyData.constructor === Object){
+      for(var prop in newData){
+        newData[prop]=copyData[prop]
+  }
+    }
+    if(copyData && copyData.locale_list){
+      this.setState({localeCount:copyData.locale_list,locale_message_map:copyData.locale_message_map})
+    }
+    this.setState({newData})
   }
   updatevalue = (name, event) => {
     let newData = this.state.newData;
@@ -108,18 +124,27 @@ class BellNotification extends React.Component {
     //   this.setState(prevState => {
     //     return {localeCount: prevState.localeCount.push(1)}
     //  })
+    // room++
+    // debugger
     this.setState(prevState => ({
-      localeCount: [...prevState.localeCount, room++]
+      localeCount:[...prevState.localeCount,'']
     }))
+    // const { locale_message_map } = this.state;
+    // let messageMap={}
+    // Object.assign(messageMap, locale_message_map);
+    // messageMap['s']={title:'',message:''};
+    // console.log({messageMap})
+    // this.setState({locale_message_map,messageMap})
+    // console.log(this.state)
   }
   removeLocalerow = (index) => {
     var elem = document.getElementById(`removeClass${index}`);
     elem.parentNode.removeChild(elem);
   }
   onModeChanged = (param) => {
-    this.setState({
-      mode: param
-    });
+    let newData = this.state.newData;
+    newData.show_at = param
+    this.setState({ newData });
   }
   saveDraft = () => {
     let localeObj = []
@@ -132,20 +157,19 @@ class BellNotification extends React.Component {
     })
     let newData = this.state.newData;
     newData['notificationMessage'] = localeObj;
-    newData.show_at = this.state.mode
     this.setState({ newData });
 
     //GlobalActions.saveDraft(newData)
   }
   nextClick = (view) => {
-    console.log(this.state.newData)
-    let data = this.state.newData
-    for (var prop in data) {
-      if (!data[prop]) {
-        this.setState({ errorObj: { error: `Fields marked with * are mandatory` } });
-        return
-      }
-    }
+    // console.log(this.state.newData)
+    // let data = this.state.newData
+    // for (var prop in data) {
+    //   if (!data[prop]) {
+    //     this.setState({ errorObj: { error: `Fields marked with * are mandatory` } });
+    //     return
+    //   }
+    // }
     this.setState({ errorObj: '' });
     document.getElementById("notification-form").style.display = "none";
     document.getElementById("audience").style.display = "block";
@@ -159,10 +183,11 @@ class BellNotification extends React.Component {
 
     let { currentView, formData, apiStatus } = this.props;
 
-    let { newData, removeGifImage, removeTileImage, errorObj, localeCount, mode } = this.state
+    let { newData, removeGifImage, removeTileImage, errorObj, localeCount, locale_message_map } = this.state
     let options = localeList.map(item => (
       <option>{item}</option>
     ))
+    
     let notificationObject = localeCount.map((item, index) => {
       return (
         <div key={index} id={`removeClass${index}`} style={{ 'marginBottom': '11px' }}>
@@ -172,7 +197,7 @@ class BellNotification extends React.Component {
               <input
                 type="text"
                 id={`notifTitle${index}`}
-
+                defaultValue={locale_message_map[item]?locale_message_map[item].title:''}
                 //onChange={this.updateparam.bind(this, `title${index}`)}
                 className="form-control"
                 placeholder="Title"
@@ -191,6 +216,7 @@ class BellNotification extends React.Component {
                 type="text"
                 id={`message${index}`}
                 placeholder="Message"
+                defaultValue={locale_message_map[item]?locale_message_map[item].message:''}
                 //onChange={this.updateparam.bind(this, "")}
                 className="form-control"
               />
@@ -199,7 +225,7 @@ class BellNotification extends React.Component {
               {index === 0 && <input
                 type="text"
                 id={`locale${index}`}
-                value="en"
+                defaultValue={item}
                 disabled="disabled"
                 className="form-control"
                 placeholder="Locale"
@@ -207,6 +233,7 @@ class BellNotification extends React.Component {
               {index !== 0 && <input
                 type="text"
                 id={`locale${index}`}
+                defaultValue={item}
                 className="form-control"
                 placeholder="Locale"
               />}
@@ -309,24 +336,24 @@ class BellNotification extends React.Component {
           <br />
         </div>
         <div className="form-group required">
-          <label className="control-label col-sm-3">Select Notification mode</label>
+          <label className="control-label col-sm-3">Select Notification Mode</label>
           <div id="notificationMode" className="col-sm-6">
             <label className="radio-inline">
               <input type="radio" name="site_name"
                 value="ribbon"
-                checked={mode === 'ribbon'}
+                checked={newData.show_at === 'ribbon'}
                 onChange={() => this.onModeChanged('ribbon')} />Ribbon
                 </label>
             <label className="radio-inline">
               <input type="radio" name="site_name"
                 value="sticky"
-                checked={mode === 'sticky'}
+                checked={newData.show_at === 'sticky'}
                 onChange={() => this.onModeChanged('sticky')} />Sticky
                 </label>
             <label className="radio-inline">
               <input type="radio" name="site_name"
                 value="both"
-                checked={mode === 'both'}
+                checked={newData.show_at === 'both'}
                 onChange={() => this.onModeChanged('both')} /> Both
                 </label>
           </div>
@@ -366,7 +393,7 @@ class BellNotification extends React.Component {
       </form>
 
       {/* <If condition={currentView === "audience"}> */}
-      <Audience apiStatus={apiStatus} />
+      <Audience apiStatus={apiStatus} formData={formData} />
       {/* </If> */}
     </div>;
   }

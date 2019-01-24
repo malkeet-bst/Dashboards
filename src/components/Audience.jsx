@@ -15,18 +15,28 @@ class Audience extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
-      filters: "",
+      audience: "",
       apiStatus:'',
-      validity: '',
-      audienceData: {}
+      validity: ''
     }
+  }
+  componentDidMount = () => {
+   
+    let copyData=this.props.formData
+  let validity=[]
+ //   if(Object.entries(copyData).length !== 0 && copyData.constructor === Object){
+
+    //  validity.push(moment('2015/01/01', 'YYYY-MM-DD'))
+   //   validity.push(moment(copyData.campaign_end_time.split(' ')[0]))
+   // }
+   this.startTime=moment('2015/01/01', 'YYYY-MM-DD')
+    this.setState({audience:copyData.audience})
+    
   }
   onChange = (date, dateString) => {
     console.log(date, dateString)
     this.setState({time:dateString})
-    let audienceData = this.state.audienceData;
-    audienceData.validity = dateString;
-    this.setState({ audienceData,apiStatus:'' });
+    this.setState({ validity:dateString,apiStatus:'' });
   }
   changeTab = () => {
     document.getElementById('notification-form').style.display = 'block'
@@ -50,23 +60,19 @@ class Audience extends React.Component {
     // })
   }
   uploadCsv = event => {
-    let { audienceData } = this.state;
-    audienceData.csv_file = event.target.files[0];
-    this.setState({ audienceData: audienceData, apiStatus:'' });
+    this.setState({ csv_file: event.target.files[0], apiStatus:'' });
   };
   updateval = (name, event) => {
-    //let audienceData = this.state.audienceData;
-    //audienceData[name] = event.target.value;
-    this.setState({ filters: event.target.value,apiStatus:''});
+    this.setState({ audience: event.target.value,apiStatus:''});
   };
   saveDraft = () => {
-    GlobalActions.saveAudienceDraft(this.state.audienceData)
+    GlobalActions.saveAudienceDraft()
   }
   publishCamp = () => {
-    if (this.state.filters && this.state.time && this.state.time[0]) {
-      GlobalActions.publishCampaign(this.state.filters, this.state.time, '')
-    } else if (this.state.filters && (!this.state.time || !this.state.time[0])) {
-      this.setState({ apiStatus: { error: "Validity is mandatory for creating filters" } })
+    if (this.state.audience && this.state.time && this.state.time[0]) {
+      GlobalActions.publishCampaign(this.state.audience, this.state.time, '')
+    } else if (this.state.audience && (!this.state.time || !this.state.time[0])) {
+      this.setState({ apiStatus: { error: "Validity is mandatory for creating filter" } })
     } else {
       var csv_data
       var fileInput = document.getElementById('csv_uploader');
@@ -75,22 +81,25 @@ class Audience extends React.Component {
         reader.readAsBinaryString(fileInput.files[0]);
         reader.onload = () => {
           csv_data = reader.result.split(/\r\n|\n/);
-          GlobalActions.publishCampaign(this.state.filters, this.state.time, JSON.stringify(csv_data))
+          GlobalActions.publishCampaign(this.state.audience, this.state.time, JSON.stringify(csv_data))
         }
       } else {
-        this.setState({ apiStatus: { error: "Either upload guid file or enter filters and validity " } })
+        this.setState({ apiStatus: { error: "Either upload guid file or enter filter and validity " } })
       }
     }
   }
   render() {
-    let { filters, validity } = this.state;
+    let { audience, validity } = this.state;
     let {apiStatus}=this.props
-    
     if(this.state.apiStatus){
       apiStatus=this.state.apiStatus
     }
-    // validity = [moment('2018-01-11T12:32:26.551Z'),
-    // moment('2018-02-19T12:32:26.551Z')]
+    let dateFormat = 'YYYY-MM-DD'
+    //console.log(this.startTime)
+    //validity = [this.startTime, moment('2015/01/01', dateFormat)]
+    //console.log(validity)
+    // [moment('2018-01-11T12:32:26.551Z'),
+    //  moment('2018-02-19T12:32:26.551Z')]
 
     return (
       <div id="audience">
@@ -104,17 +113,17 @@ class Audience extends React.Component {
           <form className="form-horizontal">
 
             <div className="form-group required">
-              <label className="control-label col-sm-3 "> Enter Filters </label>
+              <label className="control-label col-sm-3 "> Enter audience </label>
               <div className="col-sm-6">
                 <TextArea
                   className="hashtags_input form-control"
                   defaultValue={this.props.hashTags}
                   disabled={this.props.isDefaultBanners}
-                  value={filters}
-                  onChange={this.updateval.bind(this, "filters")}
+                  value={audience}
+                  onChange={this.updateval.bind(this, "audience")}
                   placeholder="Enter hashtags seperated by comma like #country_US,#age-day_0_0 without any spaces in between"
                 />
-                <div style={{ 'marginTop': '6px' }}><a href="/" target="view_window">Filters ?</a></div>
+                <div style={{ 'marginTop': '6px' }}><a href="/" target="view_window">Filter ?</a></div>
               </div>
             </div>
             <div className="form-group required">

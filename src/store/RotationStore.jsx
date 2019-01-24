@@ -14,6 +14,7 @@ export class RotationStore {
     this.activeTab = 'new'
     this.allData = [];
     this.formData = {}
+    this.showDetails=false
     this.apiUrl = Utils.getUrlFromInstance(Utils.getCloudInstance());
     this.bindActions(GlobalActions);
     window.RotationStore = this;
@@ -38,26 +39,48 @@ export class RotationStore {
   onSetSelectedPartner = partner => {
     this.selectedPartner = partner;
   };
-
+  onShowCampaignDetails=(flag)=>{
+    this.showDetails = flag
+  }
+  onCloneNotificationData=(index)=>{
+    this.channelType = 'bell'
+    this.apiStatus = ''
+    this.onSetCurrentView('home', 'new')
+    let data=this.allData[index]
+    this.formData=JSON.parse(data.notification_data)
+    this.formData.audience=data.audience
+    this.formData.campaign_start_time=data.start_time
+    this.formData.campaign_end_time=data.end_time
+    this.formData.campaign_id=data.campaign_id
+    this.formData.campaign_status=data.campaign_status
+    console.log(data)
+  }
   fetchData = async (url) => {
     return fetch(url)
   }
-  onViewAllData = () => {
-    setTimeout(() => {
-      for (let i = 0; i < 100; i++) {
-        this.allData.push({
-          key: i,
-          name: `Pubg ${i}`,
-          details: 'View Details',
-          action: `London, Park Lane no. ${i}`,
-          validity: 'one time',
-          audience: '#Geos_US_JP',
-          status: 'Live',
-          reports: 'Download'
-        });
-      }
-      this.emitChange();
-    }, 3000)
+  onViewAllData = async (showSaveMessage) => {
+    this.apiStatus = 'loading'
+    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/history/v2'
+    try {
+      const data = await this.fetchData(url)
+      const json = await data.json()
+      this.allData = json.results
+      if(!showSaveMessage)
+      this.apiStatus = ''
+      this.allData.forEach((item, index) => {
+        item.key = index + 1
+        if (item.start_time) {
+          item.validity = item.start_time + ' - ' + item.end_time
+        } else {
+          item.validity = 'One Time'
+        }
+      })
+    } catch (e) {
+      console.error("Problem", e)
+      this.apiStatus = ''
+      this.apiStatus = {error:'some error occured, please try again'}
+    }
+    this.emitChange()
   }
   onSaveDraft = async (formData) => {
     console.log({ formData })
@@ -86,17 +109,21 @@ export class RotationStore {
     let tempData = {}
     Object.assign(tempData, this.formData);
     var fd = new FormData();
-    if (audienceData && audienceData[0]) {
+    if (audienceData) {
       if (audienceData[0]) {
-        fd.append('filters', audienceData[0])
+        fd.append('hashtags', audienceData[0])
+        this.formData.hashtags = audienceData[0]
         if (audienceData[1]) {
-          fd.append('campaign_start_time', audienceData[1][0])
-          fd.append('campaign_end_time', audienceData[1][1])
+          fd.append('campaign_start_time', "2018-03-09 00:00:00")
+          fd.append('campaign_end_time', "2018-03-09 00:00:00")
+          this.formData.campaign_start_time = audienceData[1][0]
+          this.formData.campaign_end_time = audienceData[1][1]
         }
       } else {
         fd.append('csv', audienceData[2])
       }
     }
+
     tempData.notificationMessage.forEach(element => {
       fd.append('title[]', element.title)
       fd.append('message[]', element.message)
@@ -107,7 +134,7 @@ export class RotationStore {
       fd.append(property, tempData[property]);
     }
     fd.append('env', 'prod')
-    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/send'// 'http://cloud.bluestacks.com/notifications/cms/send'
+    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/send/v2'// 'http://cloud.bluestacks.com/notifications/cms/send'
 
     let response = await fetch(url, {
       method: "post",
@@ -120,20 +147,23 @@ export class RotationStore {
       let user = await response.json();
       console.log({ user })
       if (user && user.success) {
+        
+        // this.currentView = ''
+        // this.channelType = ''
+        this.activeTab = 'view'
+        this.onViewAllData(true)
         this.apiStatus = { success: "Campaign created successfully" };
-        this.currentView = ''
-        this.channelType = ''
-        this.activeTab = 'new'
+        // this.onSetCurrentView('dashboard','view')
       } else {
-        this.apiStatus = { error: user.message };
+        this.apiStatus = { error: user.message || 'some error occured' };
       }
     } else {
       this.apiStatus = { error: "some error occured" };
     }
-    // setTimeout(() => {
-    //   this.apiStatus = ''
-    //   this.emitChange();
-    // }, 4000)
+    setTimeout(() => {
+      this.apiStatus = ''
+      this.emitChange();
+    }, 4000)
     this.emitChange();
 
   }

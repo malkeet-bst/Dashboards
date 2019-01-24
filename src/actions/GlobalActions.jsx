@@ -11,6 +11,8 @@ class GlobalActions {
       'copyTemplate',
       'viewAllData',
       'saveFormData',
+      'cloneNotificationData',
+      'showCampaignDetails'
     )
   }
 }
