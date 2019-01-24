@@ -39,9 +39,17 @@ class NewNotification extends React.Component {
               </section>
             </If>
           </div>
+          <If condition={apiStatus != null && apiStatus.success != null}>
+          <div className="alert alert-success" style={{'marginTop':'30px'}}>
+            <strong>Success!</strong> {apiStatus && apiStatus.success}
+          </div>
+        </If>
           <If condition={channelType === 'bell' && currentView !='dashboard'}>
             <BellNotification currentView={currentView} apiStatus ={apiStatus} formData={formData}/>
           </If>
+          <If condition={apiStatus == "loading"}>
+          <div className="page-loader" />
+        </If>
         </If>
       </div>
     );

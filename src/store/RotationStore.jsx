@@ -21,11 +21,13 @@ export class RotationStore {
 
   onSetChannel(type) {
     this.channelType = type;
+    this.apiStatus = ''
   }
   onSaveFormData = (data) => {
     this.formData = data
   }
   onSetCurrentView(attr) {
+    this.apiStatus = ''
     if (typeof attr == 'object') {
       this.currentView = attr[0];
       this.activeTab = attr[1];
@@ -80,6 +82,7 @@ export class RotationStore {
     }
   }
   onPublishCampaign = async (audienceData) => {
+    this.apiStatus = 'loading'
     let tempData = {}
     Object.assign(tempData, this.formData);
     var fd = new FormData();
@@ -118,16 +121,19 @@ export class RotationStore {
       console.log({ user })
       if (user && user.success) {
         this.apiStatus = { success: "Campaign created successfully" };
+        this.currentView = ''
+        this.channelType = ''
+        this.activeTab = 'new'
       } else {
         this.apiStatus = { error: user.message };
       }
     } else {
       this.apiStatus = { error: "some error occured" };
     }
-    setTimeout(() => {
-      this.apiStatus = ''
-      this.emitChange();
-    }, 4000)
+    // setTimeout(() => {
+    //   this.apiStatus = ''
+    //   this.emitChange();
+    // }, 4000)
     this.emitChange();
 
   }

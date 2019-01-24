@@ -17,28 +17,29 @@ class BellNotification extends React.Component {
     super(props, context);
     this.state = {
       mode: 'ribbon',
-      // newData: {
-      //   'click_action_title': "",
-      //   'click_action_type': "InstallPlay",
-      //   'click_action_value': "",
-      //   'priority':'normal',
-      //   'gif_url': "",
-      //   'package_name': "",
-      //   'show_at': "ribbon",
-      //   'sub_tab_id': "",
-      //   'tile_menu_url': ""
-      // },
+      errorObj: {},
       newData: {
-        'click_action_title': "d",
+        'click_action_title': "",
         'click_action_type': "InstallPlay",
-        'click_action_value': "sd",
-        'priority':'normal',
-        'gif_url': "ds",
-        'package_name': "d",
+        'click_action_value': "",
+        'priority': 'normal',
+        'gif_url': "",
+        'package_name': "",
         'show_at': "ribbon",
-        'sub_tab_id': "sd",
-        'tile_menu_url': "dsds"
+        'sub_tab_id': "",
+        'tile_menu_url': ""
       },
+      // newData: {
+      //   'click_action_title': "d",
+      //   'click_action_type': "InstallPlay",
+      //   'click_action_value': "sd",
+      //   'priority':'normal',
+      //   'gif_url': "ds",
+      //   'package_name': "d",
+      //   'show_at': "ribbon",
+      //   'sub_tab_id': "sd",
+      //   'tile_menu_url': "dsds"
+      // },
       localeCount: [1],
       removeGifImage: false,
       removeTileImage: false
@@ -63,10 +64,10 @@ class BellNotification extends React.Component {
     let { newData } = this.state;
     newData[name] = event.target.files[0];
     if (name === 'gif_file') {
-      document.getElementById('gif_url').setAttribute('disabled','disabled')
+      document.getElementById('gif_url').setAttribute('disabled', 'disabled')
       this.setState({ newData: newData, removeGifImage: true })
     } else {
-      document.getElementById('title_menu_url').setAttribute('disabled','disabled')
+      document.getElementById('title_menu_url').setAttribute('disabled', 'disabled')
       this.setState({ newData: newData, removeTileImage: true })
     }
     //this.setImgPreview(event)
@@ -124,34 +125,41 @@ class BellNotification extends React.Component {
     let localeObj = []
     let titles = document.querySelectorAll('*[id^="notifTitle"]');
     let desc = document.querySelectorAll('*[id^="message"]');
-     titles = document.querySelectorAll('*[id^="notifTitle"]');
+    titles = document.querySelectorAll('*[id^="notifTitle"]');
     let locales = document.querySelectorAll('*[id^="locale"]');
     titles.forEach((item, index) => {
       localeObj.push({ 'title': item.value, 'message': desc[index].value, locale: locales[index].value })
     })
     let newData = this.state.newData;
-    // newData.title=localeObj.title
-    // newData.message=localeObj.desc
-    // newData.locale=localeObj.locale
     newData['notificationMessage'] = localeObj;
     newData.show_at = this.state.mode
     this.setState({ newData });
+
     //GlobalActions.saveDraft(newData)
   }
   nextClick = (view) => {
-    document.getElementById('notification-form').style.display = 'none'
-    document.getElementById('audience').style.display = 'block'
-    this.saveDraft()
-    GlobalActions.saveFormData(this.state.newData)
-    GlobalActions.setCurrentView(view)
+    console.log(this.state.newData)
+    let data = this.state.newData
+    for (var prop in data) {
+      if (!data[prop]) {
+        this.setState({ errorObj: { error: `Fields marked with * are mandatory` } });
+        return
+      }
+    }
+    this.setState({ errorObj: '' });
+    document.getElementById("notification-form").style.display = "none";
+    document.getElementById("audience").style.display = "block";
+    this.saveDraft();
+    GlobalActions.saveFormData(this.state.newData);
+    GlobalActions.setCurrentView(view);
+
   }
 
   render() {
 
-    let { currentView, formData,apiStatus } = this.props;
+    let { currentView, formData, apiStatus } = this.props;
 
-    let { newData, removeGifImage, removeTileImage, localeCount, mode } = this.state
-
+    let { newData, removeGifImage, removeTileImage, errorObj, localeCount, mode } = this.state
     let options = localeList.map(item => (
       <option>{item}</option>
     ))
@@ -188,7 +196,7 @@ class BellNotification extends React.Component {
               />
             </div>
             <div className="col-sm-2">
-            {index === 0 &&  <input
+              {index === 0 && <input
                 type="text"
                 id={`locale${index}`}
                 value="en"
@@ -196,7 +204,7 @@ class BellNotification extends React.Component {
                 className="form-control"
                 placeholder="Locale"
               />}
-              {index !== 0 &&  <input
+              {index !== 0 && <input
                 type="text"
                 id={`locale${index}`}
                 className="form-control"
@@ -228,20 +236,26 @@ class BellNotification extends React.Component {
     return <div>
 
       <form id="notification-form">
+
+        <If condition={errorObj != null && errorObj.error != null}>
+          <div className="alert alert-warning">
+            <strong>Warning!</strong> {errorObj && errorObj.error}
+          </div>
+        </If>
         {notificationObject}
         <div className="form-group required">
           <label className="control-label col-sm-3">Ribbon gif url</label>
           <div className="col-sm-6">
             <input type="text" id="gif_url" className="form-control" value={newData.gif_url} onChange={this.updatevalue.bind(this, "gif_url")} />
           </div>
-          <div className="col-sm-3">
+          {/* <div className="col-sm-3">
             <input type="file" name="" id="gifImageUploader" onChange={(e) => this.uploadImage(e, 'gif_file')} />
             <If condition={removeGifImage}>
               <button style={{ position: "absolute", right: "0px", width: "30px", height: "30px" }} type="button" onClick={this.removeGifImageAction} className="close" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </If>
-          </div>
+          </div> */}
         </div>
         <div className="form-group required">
           <label className="control-label col-sm-3">Action</label>
@@ -326,17 +340,17 @@ class BellNotification extends React.Component {
               </div> */}
           </div>
 
-          <div className="col-sm-3">
+          {/* <div className="col-sm-3">
             <input type="file" name="" id="tileImageUploader" onChange={(e) => this.uploadImage(e, 'tile_menu_file')} />
-            {/* <div style={{ height: "137px", marginTop: "12px" }}>
+            <div style={{ height: "137px", marginTop: "12px" }}>
                 <img id="uploadedImage" src="#" alt="" />
-              </div> */}
+              </div> 
             <If condition={removeTileImage}>
               <button style={{ position: "absolute", right: "0px", width: "30px", height: "30px" }} type="button" onClick={this.removeTileImageAction} className="close" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </If>
-          </div>
+          </div> */}
         </div>
         <div className="form-group required">
           <label className="control-label col-sm-3 ">

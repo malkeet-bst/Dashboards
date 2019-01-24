@@ -10,6 +10,23 @@ button:focus {
 .notification-container {
   display: flex;
   min-height: 100vh;
+  .page-loader {
+    font-size: 0.2rem;
+    color: white;
+    top: calc(50% - 65px);
+    left: calc(50% - 65px);
+    position: absolute;
+    background: url(../images/loader1.gif) 0 0 no-repeat;
+    width: 130px;
+    height: 130px;
+    background-size: 100% 100%;
+    z-index: 1;
+
+    animation-name: spin;
+    animation-duration: 1000ms;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+  }
   .left-panel {
     padding-top: 15rem;
     display: flex;

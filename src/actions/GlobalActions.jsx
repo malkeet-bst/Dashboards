@@ -10,7 +10,7 @@ class GlobalActions {
       'publishCampaign',
       'copyTemplate',
       'viewAllData',
-      'saveFormData'
+      'saveFormData',
     )
   }
 }

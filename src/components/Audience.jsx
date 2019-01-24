@@ -63,10 +63,10 @@ class Audience extends React.Component {
     GlobalActions.saveAudienceDraft(this.state.audienceData)
   }
   publishCamp = () => {
-    if (this.state.filters && this.state.time) {
+    if (this.state.filters && this.state.time && this.state.time[0]) {
       GlobalActions.publishCampaign(this.state.filters, this.state.time, '')
-    } else if (this.state.filters && !this.state.time) {
-      this.setState({ apiStatus: { error: "Enter validity if selecting filters" } })
+    } else if (this.state.filters && (!this.state.time || !this.state.time[0])) {
+      this.setState({ apiStatus: { error: "Validity is mandatory for creating filters" } })
     } else {
       var csv_data
       var fileInput = document.getElementById('csv_uploader');
@@ -94,14 +94,9 @@ class Audience extends React.Component {
 
     return (
       <div id="audience">
-        <If condition={apiStatus != null && apiStatus.success != null}>
-          <div className="alert alert-success">
-            <strong>Success!</strong> {apiStatus && apiStatus.success}
-          </div>
-        </If>
         <If condition={apiStatus != null && apiStatus.error != null}>
-          <div className="alert alert-danger">
-            <strong>Failed!</strong> {apiStatus && apiStatus.error}
+          <div className="alert alert-warning">
+            <strong>Warning!</strong> {apiStatus && apiStatus.error}
           </div>
         </If>
         <section>
@@ -109,7 +104,7 @@ class Audience extends React.Component {
           <form className="form-horizontal">
 
             <div className="form-group required">
-              <label className="control-label col-sm-3 "> Select Filters </label>
+              <label className="control-label col-sm-3 "> Enter Filters </label>
               <div className="col-sm-6">
                 <TextArea
                   className="hashtags_input form-control"
