@@ -82,6 +82,25 @@ export class RotationStore {
     }
     this.emitChange()
   }
+  onViewStats=async(id)=>{
+    // let url = `${this.apiUrl}rotation_cms`;
+    // try {
+    //   const data = await this.fetchData(url)
+    //   const json = await data.json()
+    //   this.allData.forEach((item, index) => {
+    //   if(item.campaign_id===id){
+    //   item.stats=json
+    //   }
+    // })
+    // } catch (e) {
+    //   console.error("Problem", e)
+    // }
+    this.allData.forEach((item, index) => {
+      if(item.campaign_id===id){
+      //item.stats=100
+      }
+    })
+  }
   onSaveDraft = async (formData) => {
     console.log({ formData })
     let url = `${this.apiUrl}rotation_cms`;
@@ -104,26 +123,69 @@ export class RotationStore {
       console.error("Problem", e)
     }
   }
+  onDeleteCampaign=async(id)=>{
+    this.apiStatus = 'loading'
+    var fd = new FormData();
+    fd.append('campaign_id',id)
+    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/delete/v2'
+
+    let response = await fetch(url, {
+      method: "post",
+      headers: {
+        Accept: "application/json"
+      },
+      body: fd
+    });
+    if (response && (response.status === 200 || response.status === 304)) {
+      let user = await response.json();
+      console.log({ user })
+      if (user && user.success) {
+        this.onViewAllData(true)
+        this.apiStatus = { success: "Campaign deleted successfully" };
+      } else {
+        this.apiStatus = { error: user.message || 'some error occured' };
+      }
+    } else {
+      this.apiStatus = { error: "some error occured" };
+    }
+    setTimeout(() => {
+      this.apiStatus = ''
+      this.emitChange();
+    }, 4000)
+    this.emitChange();
+
+  }
   onPublishCampaign = async (audienceData) => {
     this.apiStatus = 'loading'
     let tempData = {}
     Object.assign(tempData, this.formData);
     var fd = new FormData();
-    if (audienceData) {
-      if (audienceData[0]) {
-        fd.append('hashtags', audienceData[0])
-        this.formData.hashtags = audienceData[0]
-        if (audienceData[1]) {
-          fd.append('campaign_start_time', "2018-03-09 00:00:00")
-          fd.append('campaign_end_time', "2018-03-09 00:00:00")
-          this.formData.campaign_start_time = audienceData[1][0]
-          this.formData.campaign_end_time = audienceData[1][1]
-        }
-      } else {
-        fd.append('csv', audienceData[2])
+    // if (audienceData) {
+    //   if (audienceData[0]) {
+    //     fd.append('hashtags', audienceData[0])
+    //     this.formData.hashtags = audienceData[0]
+    //     if (audienceData[1]) {
+    //       fd.append('campaign_start_time', "2018-03-09 00:00:00")
+    //       fd.append('campaign_end_time', "2018-03-09 00:00:00")
+    //       this.formData.campaign_start_time = audienceData[1][0]
+    //       this.formData.campaign_end_time = audienceData[1][1]
+    //     }
+    //   } else {
+    //     fd.append('csv', audienceData[2])
+    //   }
+    // }
+    if (audienceData && audienceData[3] && audienceData[3] === 'filters') {
+      fd.append('hashtags', audienceData[0])
+      this.formData.hashtags = audienceData[0]
+      if (audienceData[1]) {
+        fd.append('campaign_start_time', audienceData[1][0])
+        fd.append('campaign_end_time', audienceData[1][1])
+        this.formData.campaign_start_time = audienceData[1][0]
+        this.formData.campaign_end_time = audienceData[1][1]
       }
+    } else if (audienceData && audienceData[3] && audienceData[3] === 'guid') {
+      fd.append('csv', audienceData[2])
     }
-
     tempData.notificationMessage.forEach(element => {
       fd.append('title[]', element.title)
       fd.append('message[]', element.message)

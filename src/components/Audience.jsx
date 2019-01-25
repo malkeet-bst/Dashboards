@@ -9,34 +9,48 @@ import "antd/dist/antd.css";
 
 const { TextArea } = Input;
 const RangePicker = DatePicker.RangePicker;
-
+const tooltipText = <div>
+  Hashtags Examples :- <br />
+  <br /> #country_US_CA: only for US,CA countries
+<br />
+  #installedapp_com.supercell.clashofclans : clashofclans is
+installed <br /> #pikapoints-current_1000_9999999999 :
+current pika points min 1000 max 9999999999 <br />
+  #pikapoints-alltime_1000_9999999999 : alltime pika points
+min 1000 max 9999999999 <br /> #age-day_0_0: Show on Day0
+    of User
+<br />
+  #age-day_1_999: Show from Day1 to Day999 of User <br />
+  #email_present: Show if email present. <br />{" "}
+  #email_absent: Show if email absent. <br />{" "}
+  #premium_user_present: Show to premium users <br />{" "}
+  #premium_user_absent: Not Show to premium users
+</div>
 
 class Audience extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = {
       audience: "",
-      apiStatus:'',
-      validity: ''
+      apiStatus: '',
+      validity: '',
+      startTime: '',
+      endTime: '',
+      audienceType: 'filters'
     }
   }
   componentDidMount = () => {
-   
-    let copyData=this.props.formData
-  let validity=[]
- //   if(Object.entries(copyData).length !== 0 && copyData.constructor === Object){
 
-    //  validity.push(moment('2015/01/01', 'YYYY-MM-DD'))
-   //   validity.push(moment(copyData.campaign_end_time.split(' ')[0]))
-   // }
-   this.startTime=moment('2015/01/01', 'YYYY-MM-DD')
-    this.setState({audience:copyData.audience})
-    
+    let copyData = this.props.formData
+    this.startTime = moment(copyData.campaign_start_time).format().split('+')[0] + 'Z'
+    this.setState({ audience: copyData.audience, startTime: moment(copyData.campaign_start_time).format().split('+')[0] + 'Z', endTime: copyData.campaign_end_time })
+
   }
   onChange = (date, dateString) => {
+
     console.log(date, dateString)
-    this.setState({time:dateString})
-    this.setState({ validity:dateString,apiStatus:'' });
+    this.setState({ time: dateString })
+    this.setState({ validity: dateString, apiStatus: '' });
   }
   changeTab = () => {
     document.getElementById('notification-form').style.display = 'block'
@@ -44,36 +58,39 @@ class Audience extends React.Component {
     GlobalActions.setCurrentView('home')
   }
   sendClick = () => {
-    this.publishCamp()
-    // confirmAlert({
-    //   title: ``,
-    //   message: 'Are you sure you want to schedule this campaign ?',
-    //   buttons: [
-    //     {
-    //       label: 'yes',
-    //       onClick: () => this.publishCamp()
-    //     },
-    //     {
-    //       label: 'No'
-    //     }
-    //   ]
-    // })
+    confirmAlert({
+      title: ``,
+      message: 'Are you sure you want to schedule this campaign ?',
+      buttons: [
+        {
+          label: 'yes',
+          onClick: () => this.publishCamp()
+        },
+        {
+          label: 'No'
+        }
+      ]
+    })
   }
   uploadCsv = event => {
-    this.setState({ csv_file: event.target.files[0], apiStatus:'' });
+    this.setState({ csv_file: event.target.files[0], apiStatus: '' });
   };
   updateval = (name, event) => {
-    this.setState({ audience: event.target.value,apiStatus:''});
+    this.setState({ audience: event.target.value, apiStatus: '' });
   };
   saveDraft = () => {
     GlobalActions.saveAudienceDraft()
   }
   publishCamp = () => {
-    if (this.state.audience && this.state.time && this.state.time[0]) {
-      GlobalActions.publishCampaign(this.state.audience, this.state.time, '')
-    } else if (this.state.audience && (!this.state.time || !this.state.time[0])) {
-      this.setState({ apiStatus: { error: "Validity is mandatory for creating filter" } })
-    } else {
+    if (this.state.audienceType === 'filters') {
+      if (!this.state.audience) {
+        this.setState({ apiStatus: { error: "Enter filters and validity" } })
+      } else if (this.state.audience && (!this.state.time || !this.state.time[0])) {
+        this.setState({ apiStatus: { error: "Validity is mandatory for creating filter" } })
+      } else {
+        GlobalActions.publishCampaign(this.state.audience, this.state.time, '', this.state.audienceType)
+      }
+    } else if (this.state.audienceType === 'guid') {
       var csv_data
       var fileInput = document.getElementById('csv_uploader');
       if (fileInput && fileInput.files[0]) {
@@ -81,78 +98,85 @@ class Audience extends React.Component {
         reader.readAsBinaryString(fileInput.files[0]);
         reader.onload = () => {
           csv_data = reader.result.split(/\r\n|\n/);
-          GlobalActions.publishCampaign(this.state.audience, this.state.time, JSON.stringify(csv_data))
+          GlobalActions.publishCampaign(this.state.audience, this.state.time, JSON.stringify(csv_data), this.state.audienceType)
         }
       } else {
-        this.setState({ apiStatus: { error: "Either upload guid file or enter filter and validity " } })
+        this.setState({ apiStatus: { error: "Upload guid file" } })
       }
     }
+
+  }
+  onModeChanged = (param) => {
+    this.setState({ audienceType: param })
   }
   render() {
-    let { audience, validity } = this.state;
-    let {apiStatus}=this.props
-    if(this.state.apiStatus){
-      apiStatus=this.state.apiStatus
+    let { audience, startTime, endTime, audienceType } = this.state;
+    let { apiStatus } = this.props
+    if (this.state.apiStatus) {
+      apiStatus = this.state.apiStatus
     }
-    let dateFormat = 'YYYY-MM-DD'
-    //console.log(this.startTime)
-    //validity = [this.startTime, moment('2015/01/01', dateFormat)]
-    //console.log(validity)
-    // [moment('2018-01-11T12:32:26.551Z'),
-    //  moment('2018-02-19T12:32:26.551Z')]
 
-    return (
-      <div id="audience">
-        <If condition={apiStatus != null && apiStatus.error != null}>
-          <div className="alert alert-warning">
-            <strong>Warning!</strong> {apiStatus && apiStatus.error}
+    // endTime=moment(startTime).format().split('+')[0]+'Z'
+    console.log({ startTime })
+    //startTime='2019-01-09T03:04:02Z'
+    //   let startTime='2018-12-20T07:37:50.886Z'
+    //  let dateFormat = 'YYYY-MM-DD'
+    //   console.log(this.startTime)
+    //   validity = [this.startTime, moment('2015/01/01', dateFormat)]
+    //   console.log(validity)
+    //   validity=
+    //   [moment('2018-01-11T12:32:26.551Z'),
+    //    moment('2018-02-19T12:32:26.551Z')]
+    return <div id="audience">
+      <If condition={apiStatus != null && apiStatus.error != null}>
+        <div className="alert alert-warning">
+          <strong>Warning!</strong> {apiStatus && apiStatus.error}
+        </div>
+      </If>
+      <section>
+        <h4> Define Audience</h4>            
+        <div style={{'textAlign':'center','marginBottom':'20px'}}> <label className="radio-inline">
+          <input type="radio" name="site_name" value="ribbon" checked={audienceType === "filters"} onChange={() => this.onModeChanged("filters")} />
+          Filters
+            </label>
+        <label className="radio-inline">
+          <input type="radio" name="site_name" value="sticky" checked={audienceType === "guid"} onChange={() => this.onModeChanged("guid")} />
+          Guid
+            </label></div>
+        <form className="form-horizontal">
+
+          <div className="form-group required">
+            <label className="control-label col-sm-3 ">
+              {" "}
+              Enter audience{" "}
+            </label>
+            <div className="col-sm-6">
+              <TextArea className="hashtags_input form-control"  defaultValue={this.props.hashTags} disabled={this.props.isDefaultBanners} value={audience} onChange={this.updateval.bind(this, "audience")} placeholder="Enter hashtags seperated by comma like #country_US,#age-day_0_0 without any spaces in between" />
+              <Tooltip title={tooltipText}>
+                <button type="button" className="btn btn-link">
+                  Filter ?
+                  </button>
+              </Tooltip>
+            </div>
           </div>
-        </If>
-        <section>
-          <h4> Define Audience</h4>
-          <form className="form-horizontal">
+          <div className="form-group required">
+            <label className="control-label col-sm-3 ">validity </label>
 
-            <div className="form-group required">
-              <label className="control-label col-sm-3 "> Enter audience </label>
-              <div className="col-sm-6">
-                <TextArea
-                  className="hashtags_input form-control"
-                  defaultValue={this.props.hashTags}
-                  disabled={this.props.isDefaultBanners}
-                  value={audience}
-                  onChange={this.updateval.bind(this, "audience")}
-                  placeholder="Enter hashtags seperated by comma like #country_US,#age-day_0_0 without any spaces in between"
-                />
-                <div style={{ 'marginTop': '6px' }}><a href="/" target="view_window">Filter ?</a></div>
-              </div>
+            <div className="col-sm-6">
+              <RangePicker onChange={this.onChange} placeholder={["Start Time", "End Time"]}
+              showTime //defaultValue={this.defaultValue}
+                defaultValue={startTime && [moment(startTime, "DD-MM-YYYY"), moment(endTime)]} format="YYYY-MM-DD HH:mm:ss" />
             </div>
-            <div className="form-group required">
-              <label className="control-label col-sm-3 ">validity </label>
-              <div className="col-sm-6">
-                <RangePicker onChange={this.onChange}  placeholder={['Start Time', 'End Time']} defaultValue={
-                  validity
-                }
-                  showTime={{
-                    hideDisabledOptions: true,
-                    defaultValue: [moment('00:00:00', 'HH:mm:ss'), moment('11:59:59', 'HH:mm:ss')],
-                  }}
-                  format="YYYY-MM-DD HH:mm:ss"
-                />
-              </div>
+          </div>
+          <div style={{ textAlign: "center", fontSize: "27px" }}>OR</div>
+          <div className="form-group required">
+            <label className="control-label col-sm-3 ">
+              Upload GUID File{" "}
+            </label>
+            <div className="col-sm-6">
+              <input type="file" id="csv_uploader" name="csv_uploader" onChange={this.uploadCsv} accept=".xlsx, .xls, .csv" />
             </div>
-            <div style={{'textAlign':'center','fontSize':'27px'}}>OR</div>
-            <div className="form-group required">
-              <label className="control-label col-sm-3 ">Upload GUID File </label>
-              <div className="col-sm-6">
-                <input
-                  type="file"
-                  id="csv_uploader"
-                  name="csv_uploader"
-                  onChange={this.uploadCsv}
-                  accept=".xlsx, .xls, .csv">
-                </input>
-              </div>
-              {/* <div className="col-sm-3">
+            {/* <div className="col-sm-3">
                 <button
                   type="button"
                   onClick={this.saveDraft}
@@ -161,13 +185,12 @@ class Audience extends React.Component {
                   <span> Test Csv</span>
                 </button>
                 </div> */}
-            </div>
+          </div>
 
-            <ButtonBar nextString="Send" backClick={this.changeTab} saveClick={this.saveDraft} nextClick={() => this.sendClick('audience')} />
-          </form>
-        </section>
-      </div>
-    );
+          <ButtonBar nextString="Send" backClick={this.changeTab} saveClick={this.saveDraft} nextClick={() => this.sendClick("audience")} />
+        </form>
+      </section>
+    </div>;
   }
 }
 

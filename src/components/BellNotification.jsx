@@ -17,10 +17,12 @@ class BellNotification extends React.Component {
     super(props, context);
     this.state = {
       errorObj: {},
-      locale_message_map:{en:{
-        message:'',
-        title:''
-      }},
+      locale_message_map: {
+        en: {
+          message: '',
+          title: ''
+        }
+      },
       newData: {
         'click_action_title': "",
         'click_action_type': "InstallPlay",
@@ -31,7 +33,7 @@ class BellNotification extends React.Component {
         'show_at': "ribbon",
         'sub_tab_id': "",
         'tile_menu_url': "",
-        "show-at":"ribbon"
+        "show_at": "ribbon"
       },
       // newData: {
       //   'click_action_title': "d",
@@ -59,16 +61,16 @@ class BellNotification extends React.Component {
       document.getElementById('audience').style.display = 'none'
     }
     let newData = this.state.newData;
-    let copyData=this.props.formData
-    if(Object.entries(copyData).length !== 0 && copyData.constructor === Object){
-      for(var prop in newData){
-        newData[prop]=copyData[prop]
-  }
+    let copyData = this.props.formData
+    if (Object.entries(copyData).length !== 0 && copyData.constructor === Object) {
+      for (var prop in newData) {
+        newData[prop] = copyData[prop]
+      }
     }
-    if(copyData && copyData.locale_list){
-      this.setState({localeCount:copyData.locale_list,locale_message_map:copyData.locale_message_map})
+    if (copyData && copyData.locale_list) {
+      this.setState({ localeCount: copyData.locale_list, locale_message_map: copyData.locale_message_map })
     }
-    this.setState({newData})
+    this.setState({ newData })
   }
   updatevalue = (name, event) => {
     let newData = this.state.newData;
@@ -121,13 +123,8 @@ class BellNotification extends React.Component {
     GlobalActions.setCurrentView('dashboard')
   }
   addLocaleRow = () => {
-    //   this.setState(prevState => {
-    //     return {localeCount: prevState.localeCount.push(1)}
-    //  })
-    // room++
-    // debugger
     this.setState(prevState => ({
-      localeCount:[...prevState.localeCount,'']
+      localeCount: [...prevState.localeCount, '']
     }))
     // const { locale_message_map } = this.state;
     // let messageMap={}
@@ -162,14 +159,14 @@ class BellNotification extends React.Component {
     //GlobalActions.saveDraft(newData)
   }
   nextClick = (view) => {
-    // console.log(this.state.newData)
-    // let data = this.state.newData
-    // for (var prop in data) {
-    //   if (!data[prop]) {
-    //     this.setState({ errorObj: { error: `Fields marked with * are mandatory` } });
-    //     return
-    //   }
-    // }
+    console.log(this.state.newData)
+    let data = this.state.newData
+    for (var prop in data) {
+      if (!data[prop]) {
+        this.setState({ errorObj: { error: `Fields marked with * are mandatory` } });
+        return
+      }
+    }
     this.setState({ errorObj: '' });
     document.getElementById("notification-form").style.display = "none";
     document.getElementById("audience").style.display = "block";
@@ -187,7 +184,7 @@ class BellNotification extends React.Component {
     let options = localeList.map(item => (
       <option>{item}</option>
     ))
-    
+
     let notificationObject = localeCount.map((item, index) => {
       return (
         <div key={index} id={`removeClass${index}`} style={{ 'marginBottom': '11px' }}>
@@ -197,7 +194,7 @@ class BellNotification extends React.Component {
               <input
                 type="text"
                 id={`notifTitle${index}`}
-                defaultValue={locale_message_map[item]?locale_message_map[item].title:''}
+                defaultValue={locale_message_map[item] ? locale_message_map[item].title : ''}
                 //onChange={this.updateparam.bind(this, `title${index}`)}
                 className="form-control"
                 placeholder="Title"
@@ -216,7 +213,7 @@ class BellNotification extends React.Component {
                 type="text"
                 id={`message${index}`}
                 placeholder="Message"
-                defaultValue={locale_message_map[item]?locale_message_map[item].message:''}
+                defaultValue={locale_message_map[item] ? locale_message_map[item].message : ''}
                 //onChange={this.updateparam.bind(this, "")}
                 className="form-control"
               />
@@ -329,8 +326,8 @@ class BellNotification extends React.Component {
           <label className="control-label col-sm-3">Priority</label>
           <div className="col-sm-6">
             <select className="form-control" id="click_action_type" value={newData.priority} onChange={this.updatevalue.bind(this, "priority")} name="priority" required>
-              <option value="normal">Normal</option>
-              <option value="important">Important</option>
+              <option value="Normal">Normal</option>
+              <option value="Important">Important</option>
             </select>
           </div>
           <br />
@@ -347,8 +344,8 @@ class BellNotification extends React.Component {
             <label className="radio-inline">
               <input type="radio" name="site_name"
                 value="sticky"
-                checked={newData.show_at === 'sticky'}
-                onChange={() => this.onModeChanged('sticky')} />Sticky
+                checked={newData.show_at === 'dropdown'}
+                onChange={() => this.onModeChanged('dropdown')} />Dropdown
                 </label>
             <label className="radio-inline">
               <input type="radio" name="site_name"

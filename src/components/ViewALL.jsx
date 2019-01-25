@@ -4,7 +4,7 @@ import { Table } from 'antd';
 import GlobalActions from "../actions/GlobalActions";
 import RotationStore from "../store/RotationStore"
 import { Modal, Button } from 'antd';
-
+import { confirmAlert } from 'react-confirm-alert';
 
 
 class ViewAll extends React.Component {
@@ -20,7 +20,7 @@ class ViewAll extends React.Component {
     }, {
       title: 'Campaign Name',
       dataIndex: 'campaign_id',
-      width: 150,
+      width: 200,
 
     }, {
       title: 'Campaign Details',
@@ -35,7 +35,7 @@ class ViewAll extends React.Component {
         {/* <span onClick={() => this.pause()} className="action-icon glyphicon glyphicon-pause"></span>
         <If condition={false}> <span onClick={() => this.stop()} className="action-icon glyphicon glyphicon-play"></span></If> */}
         <button type="button" className="btn btn-link"><span onClick={() => this.edit(text, row)} className="action-icon glyphicon glyphicon-edit"></span></button>
-        <button type="button" className="btn btn-link"><span onClick={() => this.delete()} className="action-icon glyphicon glyphicon-trash"></span></button>
+        <button type="button" className="btn btn-link"><span onClick={() => this.delete(row)} className="action-icon glyphicon glyphicon-trash"></span></button>
       </div>
       ,
     }, {
@@ -47,15 +47,20 @@ class ViewAll extends React.Component {
       title: 'Audience',
       dataIndex: 'audience',
       //width: 250
-    }, {
-      title: 'Status',
-      dataIndex: 'campaign_status',
-      width: 100
-    }, {
+    }, 
+    // {
+    //   title: 'Status',
+    //   dataIndex: 'campaign_status',
+    //   width: 100
+    // },
+     {
       title: 'Reports',
-      dataIndex: 'reports',
+      dataIndex: 'stats',
       width: 100,
-      render: (text, row) => <button type="button" className="btn btn-link" style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download</button >
+      render: (text, row) => <div style={{'textAlign':'center'}}><If condition={text!==undefined}>{text}</If>
+      <If condition={text===undefined}><button type="button" className="btn btn-link" onClick={() => this.downloadStats(row)} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download</button >
+      </If>
+      </div>
     }];
 
 
@@ -79,8 +84,21 @@ class ViewAll extends React.Component {
   componentWillUnmount = () => {
     RotationStore.unlisten(this.onChange);
   };
-  delete = (event) => {
-    console.log('delete')
+  delete = (row) => {
+    confirmAlert({
+      title: ``,
+      message: 'Are you sure you want to delete this campaign ?',
+      buttons: [
+        {
+          label: 'yes',
+          onClick: () => GlobalActions.deleteCampaign(row.campaign_id)
+        },
+        {
+          label: 'No'
+        }
+      ]
+    })
+    
   }
   edit = (text, row) => {
     GlobalActions.cloneNotificationData(row.key - 1)
@@ -109,7 +127,10 @@ class ViewAll extends React.Component {
   refreshData = () => {
     GlobalActions.viewAllData()
   }
-
+  downloadStats=(row)=>{
+    console.log(row)
+    GlobalActions.viewStats(row.campaign_id)
+  }
   handleOk = (e) => {
     console.log(e);
     GlobalActions.showCampaignDetails(false);
@@ -133,10 +154,10 @@ class ViewAll extends React.Component {
     }
     let messageObject = ''
     if (Object.entries(formData).length !== 0 && formData.constructor === Object && formData.locale_message_map) {
-      messageObject = Object.keys(formData.locale_message_map).map((key) => {
+      messageObject = Object.keys(formData.locale_message_map).map((key,index) => {
         return (
-          <div>
-            <li class="list-group-item list-group-item-light">Locale : {key}, Title : {formData.locale_message_map[key].title}, Message : {formData.locale_message_map[key].message}
+          <div key={index}>
+            <li className="list-group-item list-group-item-light">Locale : {key}, Title : {formData.locale_message_map[key].title}, Message : {formData.locale_message_map[key].message}
             </li>
           </div>
         )
@@ -149,7 +170,7 @@ class ViewAll extends React.Component {
             <header style={{ 'paddingBottom': '30px' }}><h2>View Notification</h2></header>
 
             <div className="search-filter">
-              <button onClick={this.refreshData} class="btn btn-info"><span class="glyphicon glyphicon-refresh"></span> Refresh</button>
+              <button onClick={this.refreshData} className="btn btn-info"><span className="glyphicon glyphicon-refresh"></span> Refresh</button>
               <input
                 type="text"
                 onKeyUp={this.searchFilter}
@@ -170,23 +191,23 @@ class ViewAll extends React.Component {
                 </Button>,
               ]}
             >
-              <p>
-                <li class="list-group-item list-group-item-light"><div>Campaign Name : {formData.campaign_id}</div></li>
-                <li class="list-group-item list-group-item-light"><div> Campaign Status : {formData.campaign_status}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Audience : {formData.audience}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Campaign Validity : {formData.campaign_start_time} - {formData.campaign_end_time}</div></li>
+              <ul>
+                <li className="list-group-item list-group-item-light"><div>Campaign Name : {formData.campaign_id}</div></li>
+                <li className="list-group-item list-group-item-light"><div> Campaign Status : {formData.campaign_status}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Audience : {formData.audience}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Campaign Validity : {formData.campaign_start_time} - {formData.campaign_end_time}</div></li>
                 {messageObject}
-                <li class="list-group-item list-group-item-light"><div>Ribbon gif url : {formData.gif_url}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Action title : {formData.click_action_title}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Action type : {formData.click_action_type}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Action value : {formData.click_action_value}</div></li>
-                <li class="list-group-item list-group-item-light"><div>priority : {formData.priority}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Notification mode : {formData.show_at}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Package name : {formData.package_name}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Action id : {formData.sub_tab_id}</div></li>
-                <li class="list-group-item list-group-item-light"><div>Image url : {formData.tile_menu_url}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Ribbon gif url : {formData.gif_url}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action title : {formData.click_action_title}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action type : {formData.click_action_type}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action value : {formData.click_action_value}</div></li>
+                <li className="list-group-item list-group-item-light"><div>priority : {formData.priority}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Notification mode : {formData.show_at}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Package name : {formData.package_name}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action id : {formData.sub_tab_id}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Image url : {formData.tile_menu_url}</div></li>
 
-              </p>
+              </ul>
             </Modal>
             <If condition={apiStatus != null && apiStatus.error != null}>
               <div className="alert alert-danger">

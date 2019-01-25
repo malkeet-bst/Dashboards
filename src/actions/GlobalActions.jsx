@@ -12,7 +12,9 @@ class GlobalActions {
       'viewAllData',
       'saveFormData',
       'cloneNotificationData',
-      'showCampaignDetails'
+      'showCampaignDetails',
+      'viewStats',
+      'deleteCampaign'
     )
   }
 }

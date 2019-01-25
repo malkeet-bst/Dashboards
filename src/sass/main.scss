@@ -68,11 +68,13 @@ button:focus {
     }
     h4 {
       font-weight: bold;
+      text-align: center;
+      margin-bottom: 40px;
     }
     .channel-box {
       padding: 0 20px;
       display: flex;
-      justify-content: space-around;
+      justify-content: center;
 
       .channel {
         cursor: pointer;
@@ -80,6 +82,7 @@ button:focus {
         border-radius: 14px;
         width: 206px;
         padding: 12px;
+        margin-right: 15px;
         h5 {
           font-weight: bold;
         }
@@ -127,7 +130,7 @@ button:focus {
     }
   }
 }
-.ant-modal-body{
+.ant-modal-body {
   max-height: 70vh;
   overflow: scroll;
 }
