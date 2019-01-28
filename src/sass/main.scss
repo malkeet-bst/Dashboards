@@ -90,12 +90,21 @@ button:focus {
     }
     .form-group {
       min-height: 35px;
+      margin-bottom: 28px;
       .close {
         position: absolute;
         top: 24px;
         left: 114px;
       }
+      .invalid-feedback {
+        font-size: 94%;
+        color: #dc3545;
+      }
     }
+    .form-control.is-invalid {
+      border-color: #dc3545;
+    }
+
     .form-group.required .control-label:after {
       content: "*";
       color: red;

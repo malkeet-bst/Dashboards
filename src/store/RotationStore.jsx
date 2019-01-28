@@ -12,7 +12,7 @@ export class RotationStore {
     this.channelType = ''
     this.templateData = ''
     this.activeTab = 'new'
-    this.allData = [];
+    this.allData=null
     this.formData = {}
     this.cloneData = {}
     this.showDetails = false
@@ -28,8 +28,8 @@ export class RotationStore {
   onSaveFormData = (data) => {
     this.formData = data
   }
-  onClearData=()=>{
-    this.cloneData={}
+  onClearData = () => {
+    this.cloneData = {}
   }
   onSetCurrentView(attr) {
     this.apiStatus = ''
@@ -75,20 +75,25 @@ export class RotationStore {
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
-      this.allData = json.results
-      if (!showSaveMessage)
+      if(json.success){
+        this.allData = json.results
+        if (!showSaveMessage)
         this.apiStatus = ''
-      this.allData.forEach((item, index) => {
-        item.key = index + 1
-        if (item.start_time) {
-          item.validity = item.start_time + ' - ' + item.end_time
-        } else {
-          item.validity = 'One Time'
+        if (Array.isArray(this.allData) && this.allData.length > 0) {
+          this.allData.forEach((item, index) => {
+            item.key = index + 1
+            if (item.start_time) {
+              item.validity = item.start_time + ' - ' + item.end_time
+            } else {
+              item.validity = 'One Time'
+            }
+          })
         }
-      })
+      }else{
+        this.apiStatus = { error: 'some error occured, please try again' }
+      }
+
     } catch (e) {
-      console.error("Problem", e)
-      this.apiStatus = ''
       this.apiStatus = { error: 'some error occured, please try again' }
     }
     this.emitChange()
@@ -164,20 +169,22 @@ export class RotationStore {
     let tempData = {}
     Object.assign(tempData, this.formData);
     var fd = new FormData();
-    if (tempData && tempData.audienceType) {
-      delete tempData.audienceType
-    }
-    if (audienceData && audienceData[3] && audienceData[3] === 'filters') {
-      fd.append('hashtags', audienceData[0])
-      this.formData.hashtags = audienceData[0]
-      if (audienceData[1]) {
-        fd.append('campaign_start_time', audienceData[1][0])
-        fd.append('campaign_end_time', audienceData[1][1])
-        this.formData.campaign_start_time = audienceData[1][0]
-        this.formData.campaign_end_time = audienceData[1][1]
+    if (tempData) {
+      if (tempData.audienceType) {
+        delete tempData.audienceType
       }
-    } else if (audienceData && audienceData[3] && audienceData[3] === 'guid') {
-      fd.append('csv', audienceData[2])
+    }
+    if (audienceData && audienceData[0] === 'filters') {
+      fd.append('hashtags', audienceData[1])
+      this.formData.hashtags = audienceData[1]
+      if (audienceData[1]) {
+        fd.append('campaign_start_time', audienceData[2][0])
+        fd.append('campaign_end_time', audienceData[2][1])
+        this.formData.campaign_start_time = audienceData[2][0]
+        this.formData.campaign_end_time = audienceData[2][1]
+      }
+    } else if (audienceData && audienceData[0] === 'guid') {
+      fd.append('csv', audienceData[1])
     }
     tempData.notificationMessage.forEach(element => {
       fd.append('title[]', element.title)
@@ -201,9 +208,6 @@ export class RotationStore {
     if (response && (response.status === 200 || response.status === 304)) {
       let user = await response.json();
       if (user && user.success) {
-
-        // this.currentView = ''
-        // this.channelType = ''
         this.activeTab = 'view'
         this.onViewAllData(true)
         this.apiStatus = { success: "Campaign created successfully" };

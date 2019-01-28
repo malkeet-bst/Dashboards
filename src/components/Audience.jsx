@@ -41,7 +41,22 @@ class Audience extends React.Component {
   }
   componentDidMount = () => {
     let copyData = this.props.cloneData
-    this.setState({ audience: copyData.audience, audienceType: copyData.audienceType })
+    if (copyData) {
+      if (copyData.audienceType) {
+        this.setState({ audienceType: copyData.audienceType })
+      }
+      if (copyData.audienceType) {
+        this.setState({ audience: copyData.audience })
+      }
+      if (copyData.campaign_start_time) {
+        this.setState({
+          validity: [moment(copyData.campaign_start_time),
+          moment(copyData.campaign_end_time)],
+          time:[copyData.campaign_start_time,copyData.campaign_end_time]
+      })
+    }
+  }
+
   }
   onChange = (date, dateString) => {
     console.log(dateString)
@@ -83,7 +98,7 @@ class Audience extends React.Component {
       } else if (this.state.audience && (!this.state.time || !this.state.time[0])) {
         this.setState({ apiStatus: { error: "Validity is mandatory for creating filter" } })
       } else {
-        GlobalActions.publishCampaign(this.state.audience, this.state.time, '', this.state.audienceType)
+        GlobalActions.publishCampaign(this.state.audienceType,this.state.audience, this.state.time,)
       }
     } else if (this.state.audienceType === 'guid') {
       var csv_data
@@ -93,7 +108,7 @@ class Audience extends React.Component {
         reader.readAsBinaryString(fileInput.files[0]);
         reader.onload = () => {
           csv_data = reader.result.split(/\r\n|\n/);
-          GlobalActions.publishCampaign(this.state.audience, this.state.time, JSON.stringify(csv_data), this.state.audienceType)
+          GlobalActions.publishCampaign(this.state.audienceType,JSON.stringify(csv_data))
         }
       } else {
         this.setState({ apiStatus: { error: "Upload guid file" } })

@@ -53,15 +53,16 @@ class ViewAll extends React.Component {
     //   dataIndex: 'campaign_status',
     //   width: 100
     // },
-     {
-      title: 'Reports',
-      dataIndex: 'stats',
-      width: 100,
-      render: (text, row) => <div style={{'textAlign':'center'}}><If condition={text!==undefined}>{text}</If>
-      <If condition={text===undefined}><button type="button" className="btn btn-link" onClick={() => this.downloadStats(row)} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download</button >
-      </If>
-      </div>
-    }];
+    //  {
+    //   title: 'Reports',
+    //   dataIndex: 'stats',
+    //   width: 100,
+    //   render: (text, row) => <div style={{'textAlign':'center'}}><If condition={text!==undefined}>{text}</If>
+    //   <If condition={text===undefined}><button type="button" className="btn btn-link" onClick={() => this.downloadStats(row)} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download</button >
+    //   </If>
+    //   </div>
+    // }
+  ];
 
 
     this.state = this.getUpdatedState();
@@ -142,7 +143,7 @@ class ViewAll extends React.Component {
     let { allData, showDetails } = this.state.RotationS
     let loading = true
 
-    if ((Array.isArray(allData) && allData.length > 0) || (apiStatus && apiStatus.error)) {
+    if ((Array.isArray(allData) && allData.length > 0) || (apiStatus && (apiStatus.error))) {
       loading = false
     }
     if (apiStatus === 'loading') {
@@ -198,11 +199,15 @@ class ViewAll extends React.Component {
                 <li className="list-group-item list-group-item-light"><div>Ribbon gif url : {cloneData.gif_url}</div></li>
                 <li className="list-group-item list-group-item-light"><div>Action title : {cloneData.click_action_title}</div></li>
                 <li className="list-group-item list-group-item-light"><div>Action type : {cloneData.click_action_type}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Action value : {cloneData.click_action_value}</div></li>
+                <If condition={cloneData.click_action_type === 'SettingsMenu' || cloneData.click_action_type === 'HomeAppTab' || cloneData.click_action_type === 'UserBrowser' || cloneData.click_action_type === 'InstallCDN'}>
+                  <li className="list-group-item list-group-item-light"><div>Action value : {cloneData.click_action_value}</div></li>
+                </If>
                 <li className="list-group-item list-group-item-light"><div>priority : {cloneData.priority}</div></li>
                 <li className="list-group-item list-group-item-light"><div>Notification mode : {cloneData.show_at}</div></li>
                 <li className="list-group-item list-group-item-light"><div>Package name : {cloneData.package_name}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Action id : {cloneData.sub_tab_id}</div></li>
+                <If condition={cloneData.click_action_value === 'APP_CENTER_TEXT' && cloneData.click_action_type === 'HomeAppTab'}>
+                  <li className="list-group-item list-group-item-light"><div>Action id : {cloneData.sub_tab_id}</div></li>
+                </If>
                 <li className="list-group-item list-group-item-light"><div>Image url : {cloneData.tile_menu_url}</div></li>
 
               </ul>
