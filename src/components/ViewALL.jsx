@@ -128,24 +128,20 @@ class ViewAll extends React.Component {
     GlobalActions.viewAllData()
   }
   downloadStats=(row)=>{
-    console.log(row)
     GlobalActions.viewStats(row.campaign_id)
   }
   handleOk = (e) => {
-    console.log(e);
     GlobalActions.showCampaignDetails(false);
   }
 
   handleCancel = (e) => {
-    console.log(e);
     GlobalActions.showCampaignDetails(false);
   }
   render() {
-    let { show, formData, apiStatus } = this.props
+    let { show, cloneData, apiStatus } = this.props
     let { allData, showDetails } = this.state.RotationS
     let loading = true
 
-    console.log({ formData })
     if ((Array.isArray(allData) && allData.length > 0) || (apiStatus && apiStatus.error)) {
       loading = false
     }
@@ -153,11 +149,11 @@ class ViewAll extends React.Component {
       loading = true
     }
     let messageObject = ''
-    if (Object.entries(formData).length !== 0 && formData.constructor === Object && formData.locale_message_map) {
-      messageObject = Object.keys(formData.locale_message_map).map((key,index) => {
+    if (cloneData && Object.entries(cloneData).length !== 0 && cloneData.constructor === Object && cloneData.locale_message_map) {
+      messageObject = Object.keys(cloneData.locale_message_map).map((key,index) => {
         return (
           <div key={index}>
-            <li className="list-group-item list-group-item-light">Locale : {key}, Title : {formData.locale_message_map[key].title}, Message : {formData.locale_message_map[key].message}
+            <li className="list-group-item list-group-item-light">Locale : {key}, Title : {cloneData.locale_message_map[key].title}, Message : {cloneData.locale_message_map[key].message}
             </li>
           </div>
         )
@@ -191,21 +187,23 @@ class ViewAll extends React.Component {
                 </Button>,
               ]}
             >
-              <ul>
-                <li className="list-group-item list-group-item-light"><div>Campaign Name : {formData.campaign_id}</div></li>
-                <li className="list-group-item list-group-item-light"><div> Campaign Status : {formData.campaign_status}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Audience : {formData.audience}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Campaign Validity : {formData.campaign_start_time} - {formData.campaign_end_time}</div></li>
+              <ul style={{'paddingLeft':'0'}}>
+                <li className="list-group-item list-group-item-light"><div>Campaign Name : {cloneData.campaign_id}</div></li>
+                <li className="list-group-item list-group-item-light"><div> Campaign Status : {cloneData.campaign_status}</div></li>
+                <If condition={cloneData.audience}>
+                <li className="list-group-item list-group-item-light"><div>Audience : {cloneData.audience}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Campaign Validity : {cloneData.campaign_start_time} - {cloneData.campaign_end_time}</div></li>
+                </If>
                 {messageObject}
-                <li className="list-group-item list-group-item-light"><div>Ribbon gif url : {formData.gif_url}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Action title : {formData.click_action_title}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Action type : {formData.click_action_type}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Action value : {formData.click_action_value}</div></li>
-                <li className="list-group-item list-group-item-light"><div>priority : {formData.priority}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Notification mode : {formData.show_at}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Package name : {formData.package_name}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Action id : {formData.sub_tab_id}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Image url : {formData.tile_menu_url}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Ribbon gif url : {cloneData.gif_url}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action title : {cloneData.click_action_title}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action type : {cloneData.click_action_type}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action value : {cloneData.click_action_value}</div></li>
+                <li className="list-group-item list-group-item-light"><div>priority : {cloneData.priority}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Notification mode : {cloneData.show_at}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Package name : {cloneData.package_name}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Action id : {cloneData.sub_tab_id}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Image url : {cloneData.tile_menu_url}</div></li>
 
               </ul>
             </Modal>

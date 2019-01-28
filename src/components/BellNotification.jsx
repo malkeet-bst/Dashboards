@@ -27,13 +27,12 @@ class BellNotification extends React.Component {
         'click_action_title': "",
         'click_action_type': "InstallPlay",
         'click_action_value': "",
-        'priority': 'normal',
+        'priority': 'Normal',
         'gif_url': "",
         'package_name': "",
         'show_at': "ribbon",
         'sub_tab_id': "",
-        'tile_menu_url': "",
-        "show_at": "ribbon"
+        'tile_menu_url': ""
       },
       // newData: {
       //   'click_action_title': "d",
@@ -53,7 +52,6 @@ class BellNotification extends React.Component {
     this.removeLocalerow = this.removeLocalerow.bind(this)
   }
   componentDidMount = () => {
-    console.log('inside bell')
     if (document.getElementById('notification-form')) {
       document.getElementById('notification-form').style.display = 'block'
     }
@@ -61,9 +59,10 @@ class BellNotification extends React.Component {
       document.getElementById('audience').style.display = 'none'
     }
     let newData = this.state.newData;
-    let copyData = this.props.formData
+    let copyData = this.props.cloneData
     if (Object.entries(copyData).length !== 0 && copyData.constructor === Object) {
       for (var prop in newData) {
+        if(copyData[prop])
         newData[prop] = copyData[prop]
       }
     }
@@ -159,7 +158,6 @@ class BellNotification extends React.Component {
     //GlobalActions.saveDraft(newData)
   }
   nextClick = (view) => {
-    console.log(this.state.newData)
     let data = this.state.newData
     for (var prop in data) {
       if (!data[prop]) {
@@ -178,13 +176,12 @@ class BellNotification extends React.Component {
 
   render() {
 
-    let { currentView, formData, apiStatus } = this.props;
+    let { currentView, formData, apiStatus,cloneData } = this.props;
 
     let { newData, removeGifImage, removeTileImage, errorObj, localeCount, locale_message_map } = this.state
     let options = localeList.map(item => (
       <option>{item}</option>
     ))
-
     let notificationObject = localeCount.map((item, index) => {
       return (
         <div key={index} id={`removeClass${index}`} style={{ 'marginBottom': '11px' }}>
@@ -390,7 +387,7 @@ class BellNotification extends React.Component {
       </form>
 
       {/* <If condition={currentView === "audience"}> */}
-      <Audience apiStatus={apiStatus} formData={formData} />
+      <Audience apiStatus={apiStatus} formData={formData} cloneData={cloneData} />
       {/* </If> */}
     </div>;
   }

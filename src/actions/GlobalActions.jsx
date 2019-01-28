@@ -14,7 +14,8 @@ class GlobalActions {
       'cloneNotificationData',
       'showCampaignDetails',
       'viewStats',
-      'deleteCampaign'
+      'deleteCampaign',
+      'clearData'
     )
   }
 }

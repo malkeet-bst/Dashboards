@@ -36,10 +36,10 @@ class Main extends React.Component {
     RotationStore.unlisten(this.onChange);
   };
   render() {
-    let { activeTab,channelType, currentView,formData,apiStatus } = this.state.RotationS
+    let { activeTab,channelType, currentView,formData,apiStatus,cloneData } = this.state.RotationS
     return <div className="notification-container" >
       <SideBar activeTab={activeTab} changeTab={this.changeTab} />
-      <MainContent channelType={channelType} currentView={currentView} activeTab={activeTab} formData={formData} apiStatus={apiStatus}/>
+      <MainContent channelType={channelType} currentView={currentView} activeTab={activeTab} cloneData={cloneData} formData={formData} apiStatus={apiStatus}/>
     </div>
   }
 }

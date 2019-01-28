@@ -18,7 +18,7 @@ installed <br /> #pikapoints-current_1000_9999999999 :
 current pika points min 1000 max 9999999999 <br />
   #pikapoints-alltime_1000_9999999999 : alltime pika points
 min 1000 max 9999999999 <br /> #age-day_0_0: Show on Day0
-    of User
+      of User
 <br />
   #age-day_1_999: Show from Day1 to Day999 of User <br />
   #email_present: Show if email present. <br />{" "}
@@ -40,17 +40,12 @@ class Audience extends React.Component {
     }
   }
   componentDidMount = () => {
-
-    let copyData = this.props.formData
-    this.startTime = moment(copyData.campaign_start_time).format().split('+')[0] + 'Z'
-    this.setState({ audience: copyData.audience, startTime: moment(copyData.campaign_start_time).format().split('+')[0] + 'Z', endTime: copyData.campaign_end_time })
-
+    let copyData = this.props.cloneData
+    this.setState({ audience: copyData.audience, audienceType: copyData.audienceType })
   }
   onChange = (date, dateString) => {
-
-    console.log(date, dateString)
-    this.setState({ time: dateString })
-    this.setState({ validity: dateString, apiStatus: '' });
+    console.log(dateString)
+    this.setState({ validity: date, apiStatus: '',time:dateString});
   }
   changeTab = () => {
     document.getElementById('notification-form').style.display = 'block'
@@ -107,26 +102,25 @@ class Audience extends React.Component {
 
   }
   onModeChanged = (param) => {
+    console.log('mode change',this.state)
     this.setState({ audienceType: param })
   }
   render() {
-    let { audience, startTime, endTime, audienceType } = this.state;
-    let { apiStatus } = this.props
+    let { audience, audienceType,validity } = this.state;
+
+    let { apiStatus, cloneData } = this.props
     if (this.state.apiStatus) {
       apiStatus = this.state.apiStatus
     }
-
-    // endTime=moment(startTime).format().split('+')[0]+'Z'
-    console.log({ startTime })
-    //startTime='2019-01-09T03:04:02Z'
-    //   let startTime='2018-12-20T07:37:50.886Z'
-    //  let dateFormat = 'YYYY-MM-DD'
-    //   console.log(this.startTime)
-    //   validity = [this.startTime, moment('2015/01/01', dateFormat)]
-    //   console.log(validity)
-    //   validity=
-    //   [moment('2018-01-11T12:32:26.551Z'),
-    //    moment('2018-02-19T12:32:26.551Z')]
+    let cloneValidity
+    if (cloneData && cloneData.campaign_start_time) {
+      cloneValidity =
+      [moment(cloneData.campaign_start_time),
+      moment(cloneData.campaign_end_time)]
+    }
+    if(validity){
+      cloneValidity=validity
+    }
     return <div id="audience">
       <If condition={apiStatus != null && apiStatus.error != null}>
         <div className="alert alert-warning">
@@ -134,49 +128,53 @@ class Audience extends React.Component {
         </div>
       </If>
       <section>
-        <h4> Define Audience</h4>            
-        <div style={{'textAlign':'center','marginBottom':'20px'}}> <label className="radio-inline">
+        <h4> Define Audience</h4>
+        <div style={{ 'textAlign': 'center', 'marginBottom': '20px' }}> <label className="radio-inline">
           <input type="radio" name="site_name" value="ribbon" checked={audienceType === "filters"} onChange={() => this.onModeChanged("filters")} />
-          Filters
+          Enter Audience
             </label>
-        <label className="radio-inline">
-          <input type="radio" name="site_name" value="sticky" checked={audienceType === "guid"} onChange={() => this.onModeChanged("guid")} />
-          Guid
+          <label className="radio-inline">
+            <input type="radio" name="site_name" value="sticky" checked={audienceType === "guid"} onChange={() => this.onModeChanged("guid")} />
+            Upload Guids
             </label></div>
         <form className="form-horizontal">
-
-          <div className="form-group required">
-            <label className="control-label col-sm-3 ">
-              {" "}
-              Enter audience{" "}
-            </label>
-            <div className="col-sm-6">
-              <TextArea className="hashtags_input form-control"  defaultValue={this.props.hashTags} disabled={this.props.isDefaultBanners} value={audience} onChange={this.updateval.bind(this, "audience")} placeholder="Enter hashtags seperated by comma like #country_US,#age-day_0_0 without any spaces in between" />
-              <Tooltip title={tooltipText}>
-                <button type="button" className="btn btn-link">
-                  Filter ?
+          <If condition={audienceType === 'filters'}>
+            <div className="form-group required">
+              <label className="control-label col-sm-3 ">
+                {" "}
+                Enter audience{" "}
+              </label>
+              <div className="col-sm-6">
+                <TextArea className="hashtags_input form-control"  value={audience} onChange={this.updateval.bind(this, "audience")} placeholder="Enter hashtags seperated by comma like #country_US,#age-day_0_0 without any spaces in between" />
+                <Tooltip title={tooltipText}>
+                  <button type="button" className="btn btn-link">
+                    Filter ?
                   </button>
-              </Tooltip>
+                </Tooltip>
+              </div>
             </div>
-          </div>
-          <div className="form-group required">
-            <label className="control-label col-sm-3 ">validity </label>
 
-            <div className="col-sm-6">
-              <RangePicker onChange={this.onChange} placeholder={["Start Time", "End Time"]}
-              showTime //defaultValue={this.defaultValue}
-                defaultValue={startTime && [moment(startTime, "DD-MM-YYYY"), moment(endTime)]} format="YYYY-MM-DD HH:mm:ss" />
+            <div className="form-group required">
+              <label className="control-label col-sm-3 ">validity </label>
+
+              <div className="col-sm-6">
+                <RangePicker onChange={this.onChange} placeholder={["Start Time", "End Time"]} disabled={audienceType === 'guid'}
+                  showTime={{ format: 'HH:mm:ss' }}
+                  format="YYYY-MM-DD HH:mm:ss"
+                  defaultValue={cloneValidity}  />
+                  
+              </div>
             </div>
-          </div>
-          <div style={{ textAlign: "center", fontSize: "27px" }}>OR</div>
-          <div className="form-group required">
-            <label className="control-label col-sm-3 ">
-              Upload GUID File{" "}
-            </label>
-            <div className="col-sm-6">
-              <input type="file" id="csv_uploader" name="csv_uploader" onChange={this.uploadCsv} accept=".xlsx, .xls, .csv" />
-            </div>
-            {/* <div className="col-sm-3">
+          </If>
+          <If condition={audienceType === 'guid'}>
+            <div className="form-group required">
+              <label className="control-label col-sm-3 ">
+                Upload GUID File{" "}
+              </label>
+              <div className="col-sm-6">
+                <input type="file" id="csv_uploader" name="csv_uploader" onChange={this.uploadCsv} accept=".xlsx, .xls, .csv" />
+              </div>
+              {/* <div className="col-sm-3">
                 <button
                   type="button"
                   onClick={this.saveDraft}
@@ -185,8 +183,8 @@ class Audience extends React.Component {
                   <span> Test Csv</span>
                 </button>
                 </div> */}
-          </div>
-
+            </div>
+          </If>
           <ButtonBar nextString="Send" backClick={this.changeTab} saveClick={this.saveDraft} nextClick={() => this.sendClick("audience")} />
         </form>
       </section>

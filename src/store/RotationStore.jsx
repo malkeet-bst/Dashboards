@@ -14,7 +14,8 @@ export class RotationStore {
     this.activeTab = 'new'
     this.allData = [];
     this.formData = {}
-    this.showDetails=false
+    this.cloneData = {}
+    this.showDetails = false
     this.apiUrl = Utils.getUrlFromInstance(Utils.getCloudInstance());
     this.bindActions(GlobalActions);
     window.RotationStore = this;
@@ -26,6 +27,9 @@ export class RotationStore {
   }
   onSaveFormData = (data) => {
     this.formData = data
+  }
+  onClearData=()=>{
+    this.cloneData={}
   }
   onSetCurrentView(attr) {
     this.apiStatus = ''
@@ -39,21 +43,28 @@ export class RotationStore {
   onSetSelectedPartner = partner => {
     this.selectedPartner = partner;
   };
-  onShowCampaignDetails=(flag)=>{
+  onShowCampaignDetails = (flag) => {
     this.showDetails = flag
   }
-  onCloneNotificationData=(index)=>{
+  onCloneNotificationData = (index) => {
     this.channelType = 'bell'
     this.apiStatus = ''
+    Object.assign(this.cloneData, this.formData)
     this.onSetCurrentView('home', 'new')
-    let data=this.allData[index]
-    this.formData=JSON.parse(data.notification_data)
-    this.formData.audience=data.audience
-    this.formData.campaign_start_time=data.start_time
-    this.formData.campaign_end_time=data.end_time
-    this.formData.campaign_id=data.campaign_id
-    this.formData.campaign_status=data.campaign_status
-    console.log(data)
+    let data = this.allData[index]
+    this.cloneData = JSON.parse(data.notification_data)
+    this.cloneData.audience = data.audience
+    this.cloneData.campaign_id = data.campaign_id
+    this.cloneData.campaign_status = data.campaign_status
+    if (!data.start_time) {
+      this.cloneData.audienceType = 'guid'
+    }
+    else {
+      this.cloneData.audienceType = 'filters'
+      this.cloneData.campaign_start_time = data.start_time
+      this.cloneData.campaign_end_time = data.end_time
+    }
+    this.emitChange()
   }
   fetchData = async (url) => {
     return fetch(url)
@@ -65,8 +76,8 @@ export class RotationStore {
       const data = await this.fetchData(url)
       const json = await data.json()
       this.allData = json.results
-      if(!showSaveMessage)
-      this.apiStatus = ''
+      if (!showSaveMessage)
+        this.apiStatus = ''
       this.allData.forEach((item, index) => {
         item.key = index + 1
         if (item.start_time) {
@@ -78,11 +89,11 @@ export class RotationStore {
     } catch (e) {
       console.error("Problem", e)
       this.apiStatus = ''
-      this.apiStatus = {error:'some error occured, please try again'}
+      this.apiStatus = { error: 'some error occured, please try again' }
     }
     this.emitChange()
   }
-  onViewStats=async(id)=>{
+  onViewStats = async (id) => {
     // let url = `${this.apiUrl}rotation_cms`;
     // try {
     //   const data = await this.fetchData(url)
@@ -96,37 +107,31 @@ export class RotationStore {
     //   console.error("Problem", e)
     // }
     this.allData.forEach((item, index) => {
-      if(item.campaign_id===id){
-      //item.stats=100
+      if (item.campaign_id === id) {
+        //item.stats=100
       }
     })
   }
   onSaveDraft = async (formData) => {
-    console.log({ formData })
     let url = `${this.apiUrl}rotation_cms`;
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
-      console.log(json)
     } catch (e) {
-      console.error("Problem", e)
     }
   }
   onSaveAudienceDraft = async (formData) => {
-    console.log({ formData })
     let url = `${this.apiUrl}rotation_cms`;
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
-      console.log(json)
     } catch (e) {
-      console.error("Problem", e)
     }
   }
-  onDeleteCampaign=async(id)=>{
+  onDeleteCampaign = async (id) => {
     this.apiStatus = 'loading'
     var fd = new FormData();
-    fd.append('campaign_id',id)
+    fd.append('campaign_id', id)
     let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/delete/v2'
 
     let response = await fetch(url, {
@@ -138,7 +143,6 @@ export class RotationStore {
     });
     if (response && (response.status === 200 || response.status === 304)) {
       let user = await response.json();
-      console.log({ user })
       if (user && user.success) {
         this.onViewAllData(true)
         this.apiStatus = { success: "Campaign deleted successfully" };
@@ -160,20 +164,9 @@ export class RotationStore {
     let tempData = {}
     Object.assign(tempData, this.formData);
     var fd = new FormData();
-    // if (audienceData) {
-    //   if (audienceData[0]) {
-    //     fd.append('hashtags', audienceData[0])
-    //     this.formData.hashtags = audienceData[0]
-    //     if (audienceData[1]) {
-    //       fd.append('campaign_start_time', "2018-03-09 00:00:00")
-    //       fd.append('campaign_end_time', "2018-03-09 00:00:00")
-    //       this.formData.campaign_start_time = audienceData[1][0]
-    //       this.formData.campaign_end_time = audienceData[1][1]
-    //     }
-    //   } else {
-    //     fd.append('csv', audienceData[2])
-    //   }
-    // }
+    if (tempData && tempData.audienceType) {
+      delete tempData.audienceType
+    }
     if (audienceData && audienceData[3] && audienceData[3] === 'filters') {
       fd.append('hashtags', audienceData[0])
       this.formData.hashtags = audienceData[0]
@@ -207,9 +200,8 @@ export class RotationStore {
     });
     if (response && (response.status === 200 || response.status === 304)) {
       let user = await response.json();
-      console.log({ user })
       if (user && user.success) {
-        
+
         // this.currentView = ''
         // this.channelType = ''
         this.activeTab = 'view'
@@ -229,9 +221,9 @@ export class RotationStore {
     this.emitChange();
 
   }
+
   onCopyTemplate = (data) => {
     this.templateData = data
-    console.log(this.templateData)
   }
 }
 

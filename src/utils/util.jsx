@@ -10,7 +10,6 @@ export default class Utils {
 
   static getCloudInstance() {
     let instance = window.instance
-    console.log({instance})
     return instance
   }
   static getUrlFromInstance(instance) {

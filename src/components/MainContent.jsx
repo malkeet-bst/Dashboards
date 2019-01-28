@@ -11,11 +11,11 @@ class MainContent extends React.Component {
   }
 
   render() {
-    let { activeTab, channelType, currentView, formData, apiStatus } = this.props
+    let { activeTab, channelType, currentView, formData, apiStatus,cloneData } = this.props
     return (
       <div className="right-panel">
-        <NewNotification channelType={channelType} currentView={currentView} apiStatus={apiStatus} show={activeTab === 'new'} type={channelType} formData={formData} />
-        <ViewAll show={activeTab === 'view'} formData={formData} apiStatus={apiStatus} />
+        <NewNotification channelType={channelType} currentView={currentView} cloneData={cloneData} apiStatus={apiStatus} show={activeTab === 'new'} type={channelType} formData={formData} />
+        <ViewAll show={activeTab === 'view'} formData={formData} apiStatus={apiStatus} cloneData={cloneData} />
         <If condition={apiStatus != null && apiStatus.success != null}>
           <div className="success-message">
             <div className="alert alert-success" style={{ 'marginTop': '30px' }}>
