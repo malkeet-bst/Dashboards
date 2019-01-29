@@ -31,13 +31,13 @@ class BellNotification extends React.Component {
       newData: {
         'click_action_title': "",
         'click_action_type': "InstallPlay",
-        //'click_action_value': "MY_APP_TEXT",
+        'click_action_value': "MY_APP_TEXT",
         'priority': 'Normal',
         'gif_url': "",
-        'package_name': "",
         'show_at': "ribbon",
-        // 'sub_tab_id': "home",
-        'tile_menu_url': ""
+        'sub_tab_id': "home",
+        'tile_menu_url': "",
+        "package_name":''
       },
       localeCount: ['en'],
       removeGifImage: false,
@@ -55,10 +55,13 @@ class BellNotification extends React.Component {
   
     let newData = this.state.newData;
     let copyData = this.props.cloneData
+    console.log(copyData,newData)
+    
     if (Object.entries(copyData).length !== 0 && copyData.constructor === Object) {
       for (var prop in newData) {
         if (copyData[prop])
           newData[prop] = copyData[prop]
+          this.updatevalue(prop,{target:{value:copyData[prop]}})
       }
     }
     
@@ -84,7 +87,9 @@ class BellNotification extends React.Component {
         delete newData['click_action_value']
         delete newData['sub_tab_id']
       }
-      if (event.target.value !== 'InstallPlay') {
+      if (event.target.value === 'InstallPlay') {
+        newData.package_name=''
+      }else{
         delete newData['package_name']
       }
     }
@@ -105,13 +110,16 @@ class BellNotification extends React.Component {
 
     let { newData } = this.state;
     newData[name] = event.target.files[0];
-    if (name === 'gif_file') {
+    if (name === 'gif_image_file_obj') {
       document.getElementById('gif_url').setAttribute('disabled', 'disabled')
       this.setState({ newData: newData, removeGifImage: true })
+      this.validateGifUrl()
     } else {
-      document.getElementById('title_menu_url').setAttribute('disabled', 'disabled')
+      document.getElementById('tile_menu_url').setAttribute('disabled', 'disabled')
       this.setState({ newData: newData, removeTileImage: true })
+      this.validateTileUrl()
     }
+    
     //this.setImgPreview(event)
   };
   setImgPreview = (input) => {
@@ -125,15 +133,18 @@ class BellNotification extends React.Component {
   }
   removeGifImageAction = () => {
     let { newData } = this.state;
+    delete newData.gif_image_file_obj
     document.getElementById('gif_url').removeAttribute('disabled')
-    document.getElementById('gifImageUploader').value = ''
+    document.getElementById('gif_image_file_obj').value = ''
     this.setState({ newData: newData, removeGifImage: false });
+    this.validateGifUrl()
   }
   removeTileImageAction = () => {
     let { newData } = this.state;
-    document.getElementById('title_menu_url').removeAttribute('disabled')
+    document.getElementById('tile_menu_url').removeAttribute('disabled')
     document.getElementById('tileImageUploader').value = ''
     this.setState({ newData: newData, removeTileImage: false });
+    this.validateTileUrl()
   }
   handleActionChange = selectedAction => {
     let newData = this.state.newData;
@@ -164,7 +175,7 @@ class BellNotification extends React.Component {
   }
   validatePackage = () => {
     let newData = this.state.newData;
-    let packageNameError = newData.package_name && newData.package_name.length === 0 ? 'Package name cannot be empty' : newData.package_name && newData.package_name.startsWith('com.') ? null : 'Package name should start with com.'
+    let packageNameError = !newData.package_name? 'Package name cannot be empty' : newData.package_name && newData.package_name.startsWith('com.') ? null : 'Package name should start with com.'
     this.setState({
       packageNameError: packageNameError
     });
@@ -172,19 +183,19 @@ class BellNotification extends React.Component {
   validateTileUrl = () => {
     let newData = this.state.newData;
     this.setState({
-      tileMenuUrlError: newData.tile_menu_url.length > 0 ? null : 'Tile menu url cannot be empty'
+      tileMenuUrlError: newData.time_menu_image_file_obj || newData.tile_menu_url ? null : 'Tile menu url cannot be empty'
     });
   }
   validateActionValue = () => {
     let newData = this.state.newData;
     this.setState({
-      actionValueError: newData.click_action_value && newData.click_action_value.length > 0 ? null : 'Click action value cannot be empty'
+      actionValueError: newData.click_action_value ? null : 'Click action value cannot be empty'
     });
   }
   validateGifUrl = () => {
     let newData = this.state.newData;
     this.setState({
-      gifUrlError: newData.gif_url.length > 0 ? null : 'Ribbon gif url cannot be empty'
+      gifUrlError: newData.gif_image_file_obj || newData.gif_url ? null : 'Ribbon gif url cannot be empty'
     });
   }
   removeLocalerow = (index) => {
@@ -226,11 +237,25 @@ class BellNotification extends React.Component {
       return
     }
     for (var prop in data) {
-      if (!data[prop] && prop !== 'click_action_title') {
-        //this.setState({ errorObj: { error: `Fields marked with * are mandatory` } });
-        return
-      }
+      if (prop === 'gif_url') {
+        if (!data[prop] && !data['gif_image_file_obj']) {
+          return
+        }
+      } else if (prop === 'tile_menu_url') {
+        if (!data[prop] && !data['time_menu_image_file_obj']) {
+          return
+        }
+      } else if(prop==='package_name'){
+        if (!data[prop] && data['click_action_type']==='InstallPlay') {
+          return
+        }
+      }else
+        if (!data[prop] && prop !== 'click_action_title') {
+          console.log(prop)
+          return
+        }
     }
+
     this.setState({ errorObj: '' });
     document.getElementById("notification-form").style.display = "none";
     document.getElementById("audience").style.display = "block";
@@ -328,14 +353,14 @@ class BellNotification extends React.Component {
             <input type="text" id="gif_url" autoComplete="off" value={newData.gif_url} onChange={this.updatevalue.bind(this, "gif_url")} className={`form-control ${this.state.gifUrlError ? 'is-invalid' : ''}`} />
             <div className='invalid-feedback'>{this.state.gifUrlError}</div>
           </div>
-          {/* <div className="col-sm-3">
-            <input type="file" name="" id="gifImageUploader" onChange={(e) => this.uploadImage(e, 'gif_file')} />
+          <div className="col-sm-3">
+            <input type="file" name="" id="gif_image_file_obj"  accept='image/*' onChange={(e) => this.uploadImage(e, 'gif_image_file_obj')} />
             <If condition={removeGifImage}>
               <button style={{ position: "absolute", right: "0px", width: "30px", height: "30px" }} type="button" onClick={this.removeGifImageAction} className="close" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </If>
-          </div> */}
+          </div>
         </div>
         <div className="form-group required">
           <label className="control-label col-sm-3">Click Action Type</label>
@@ -469,24 +494,24 @@ class BellNotification extends React.Component {
         <div className="form-group required">
           <label className="control-label col-sm-3">Tile menu url</label>
           <div className="col-sm-6">
-            <input type="text" id="title_menu_url" autoComplete="off" className={`form-control ${this.state.tileMenuUrlError ? 'is-invalid' : ''}`} value={newData.tile_menu_url} onChange={this.updatevalue.bind(this, "tile_menu_url")} />
+            <input type="text" id="tile_menu_url" autoComplete="off" className={`form-control ${this.state.tileMenuUrlError ? 'is-invalid' : ''}`} value={newData.tile_menu_url} onChange={this.updatevalue.bind(this, "tile_menu_url")} />
             <div className='invalid-feedback'>{this.state.tileMenuUrlError}</div>
             {/* <div style={{ height: "137px", marginTop: "12px" }}>
                 <img src={newData.image_url} alt="" />
               </div> */}
           </div>
 
-          {/* <div className="col-sm-3">
-            <input type="file" name="" id="tileImageUploader" onChange={(e) => this.uploadImage(e, 'tile_menu_file')} />
-            <div style={{ height: "137px", marginTop: "12px" }}>
+          <div className="col-sm-3">
+            <input type="file" name="" id="tileImageUploader" onChange={(e) => this.uploadImage(e, 'time_menu_image_file_obj')} />
+            {/* <div style={{ height: "137px", marginTop: "12px" }}>
                 <img id="uploadedImage" src="#" alt="" />
-              </div> 
+              </div>  */}
             <If condition={removeTileImage}>
               <button style={{ position: "absolute", right: "0px", width: "30px", height: "30px" }} type="button" onClick={this.removeTileImageAction} className="close" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </If>
-          </div> */}
+          </div>
         </div>
         <If condition={newData.click_action_type === 'InstallPlay'}>
           <div className="form-group required">

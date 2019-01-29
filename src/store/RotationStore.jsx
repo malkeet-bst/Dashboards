@@ -57,7 +57,7 @@ export class RotationStore {
   }
   onViewAllData = async (showSaveMessage) => {
     this.apiStatus = 'loading'
-    let url = `${this.apiUrl}notifications/cms/history/v2`
+    let url = `${this.apiUrl}notifications/cms/v2/history`
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
@@ -119,7 +119,7 @@ export class RotationStore {
     this.apiStatus = 'loading'
     var fd = new FormData();
     fd.append('campaign_id', id)
-    let url = `${this.apiUrl}notifications/cms/delete/v2`
+    let url = `${this.apiUrl}notifications/cms/v2/delete`
 
     let response = await fetch(url, {
       method: "post",
@@ -155,15 +155,21 @@ export class RotationStore {
       if (tempData.audienceType) {
         delete tempData.audienceType
       }
+      if(tempData.gif_image_file_obj){
+        delete tempData.gif_url
+      }
+      if(tempData.gif_image_file_obj){
+        delete tempData.time_menu_image_file_obj
+      }
     }
     if (audienceData && audienceData[0] === 'filters') {
       fd.append('hashtags', audienceData[1])
-      this.formData.hashtags = audienceData[1]
+      //this.formData.hashtags = audienceData[1]
       if (audienceData[1]) {
         fd.append('campaign_start_time', audienceData[2][0])
         fd.append('campaign_end_time', audienceData[2][1])
-        this.formData.campaign_start_time = audienceData[2][0]
-        this.formData.campaign_end_time = audienceData[2][1]
+      //  this.formData.campaign_start_time = audienceData[2][0]
+        //this.formData.campaign_end_time = audienceData[2][1]
       }
     } else if (audienceData && audienceData[0] === 'guid') {
       fd.append('csv', audienceData[1])
@@ -174,11 +180,12 @@ export class RotationStore {
       fd.append('locale[]', element.locale)
     });
     delete tempData.notificationMessage
+
     for (var property in tempData) {
       fd.append(property, tempData[property]);
     }
     fd.append('env', 'prod')
-    let url = `${this.apiUrl}notifications/cms/send/v2`// 'http://cloud.bluestacks.com/notifications/cms/send'
+    let url = `${this.apiUrl}notifications/cms/v2/send`// 'http://cloud.bluestacks.com/notifications/cms/send'
 
     let response = await fetch(url, {
       method: "post",
