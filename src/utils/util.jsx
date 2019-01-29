@@ -9,18 +9,17 @@ export default class Utils {
   static urlParams = new URLSearchParams(window.location.search)
 
   static getCloudInstance() {
-    let instance = window.instance
+    let instance = this.urlParams.get('instance')
+    console.log(instance)
     return instance
   }
   static getUrlFromInstance(instance) {
     let url
     if (instance === "prod") {
-      url = "https://appcenter-console.bluestacks.com/manage/"
-      //url="http://10.1.174.197:8000/manage/"
+      url = "http://notif-v2-dot-bluestacks-cloud.appspot.com/"
     } else {
       //engg
-      url = "https://appcenter-console-engg.bluestacks.com/manage/"
-      //url="http://10.1.174.197:8000/manage/"
+      url = "https://notif-v2-dot-bs3-appcenter-engg.appspot.com/"
     }
     return url
   }

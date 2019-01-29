@@ -57,13 +57,16 @@ export class RotationStore {
   }
   onViewAllData = async (showSaveMessage) => {
     this.apiStatus = 'loading'
-    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/history/v2'
+    let url = `${this.apiUrl}notifications/cms/history/v2`
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
       if(json.success){
         this.allData = json.results
-        if (!showSaveMessage)
+        if(this.allData && this.allData.length===0){
+          this.apiStatus = { success: 'No data found' }
+        }
+        if (!showSaveMessage && this.allData.length>0)
         this.apiStatus = ''
         if (Array.isArray(this.allData) && this.allData.length > 0) {
           this.allData.forEach((item, index) => {
@@ -75,6 +78,7 @@ export class RotationStore {
             }
           })
         }
+        
       }else{
         this.apiStatus = { error: 'some error occured, please try again' }
       }
@@ -115,7 +119,7 @@ export class RotationStore {
     this.apiStatus = 'loading'
     var fd = new FormData();
     fd.append('campaign_id', id)
-    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/delete/v2'
+    let url = `${this.apiUrl}notifications/cms/delete/v2`
 
     let response = await fetch(url, {
       method: "post",
@@ -174,7 +178,7 @@ export class RotationStore {
       fd.append(property, tempData[property]);
     }
     fd.append('env', 'prod')
-    let url = 'https://notif-v2-dot-bs3-appcenter-engg.appspot.com/notifications/cms/send/v2'// 'http://cloud.bluestacks.com/notifications/cms/send'
+    let url = `${this.apiUrl}notifications/cms/send/v2`// 'http://cloud.bluestacks.com/notifications/cms/send'
 
     let response = await fetch(url, {
       method: "post",

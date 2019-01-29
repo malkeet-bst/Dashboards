@@ -143,7 +143,7 @@ class ViewAll extends React.Component {
     let { allData, showDetails } = this.state.RotationS
     let loading = true
 
-    if ((Array.isArray(allData) && allData.length > 0) || (apiStatus && (apiStatus.error))) {
+    if ((Array.isArray(allData) && allData.length > 0) || (apiStatus && (apiStatus.error)) || (apiStatus && (apiStatus.success))) {
       loading = false
     }
     if (apiStatus === 'loading') {

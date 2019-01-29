@@ -21,7 +21,6 @@ class BellNotification extends React.Component {
       errorObj: {},
       packageNameError: '',
       tileMenuUrlError: '',
-      actionTitleError: '',
       gifUrlError: '',
       locale_message_map: {
         en: {
@@ -53,6 +52,7 @@ class BellNotification extends React.Component {
     if (document.getElementById('audience')) {
       document.getElementById('audience').style.display = 'none'
     }
+  
     let newData = this.state.newData;
     let copyData = this.props.cloneData
     if (Object.entries(copyData).length !== 0 && copyData.constructor === Object) {
@@ -61,6 +61,7 @@ class BellNotification extends React.Component {
           newData[prop] = copyData[prop]
       }
     }
+    
     if (copyData && copyData.locale_list) {
       this.setState({ localeCount: copyData.locale_list, locale_message_map: copyData.locale_message_map })
     }
@@ -76,14 +77,16 @@ class BellNotification extends React.Component {
       else if (event.target.value === 'SettingsMenu') {
         newData['click_action_value'] = 'DISPLAY_SETTINGS_TEXT'
         delete newData['sub_tab_id']
-      } else if (event.target.value === 'InstallCDN' || event.target.value === 'UserBrowser') {
+      } else if (event.target.value === 'InstallCDN' || event.target.value === 'UserBrowser' || event.target.value === 'ApplicationBrowser') {
         newData['click_action_value'] = ''
         delete newData['sub_tab_id']
-      } else
-        if (event.target.value !== 'HomeAppTab' && event.target.value !== 'SettingsMenu') {
-          delete newData['click_action_value']
-          delete newData['sub_tab_id']
-        }
+      } else if (event.target.value !== 'HomeAppTab' && event.target.value !== 'SettingsMenu') {
+        delete newData['click_action_value']
+        delete newData['sub_tab_id']
+      }
+      if (event.target.value !== 'InstallPlay') {
+        delete newData['package_name']
+      }
     }
     if (name === 'click_action_value') {
       newData['sub_tab_id'] = 'home'
@@ -93,8 +96,6 @@ class BellNotification extends React.Component {
       this.validatePackage()
     if (name === 'tile_menu_url')
       this.validateTileUrl()
-    if (name === 'click_action_title')
-      this.validateActionTitle()
     if (name === 'gif_url')
       this.validateGifUrl()
     if (name === 'click_action_value')
@@ -157,9 +158,13 @@ class BellNotification extends React.Component {
     // this.setState({locale_message_map,messageMap})
     // console.log(this.state)
   }
+  validateTitles=()=>{
+    let data = this.state.newData
+    console.log(data.notificationObject)
+  }
   validatePackage = () => {
     let newData = this.state.newData;
-    let packageNameError = newData.package_name.length === 0 ? 'Package name cannot be empty' : newData.package_name.startsWith('com.') ? null : 'Package name should start with com.'
+    let packageNameError = newData.package_name && newData.package_name.length === 0 ? 'Package name cannot be empty' : newData.package_name && newData.package_name.startsWith('com.') ? null : 'Package name should start with com.'
     this.setState({
       packageNameError: packageNameError
     });
@@ -168,12 +173,6 @@ class BellNotification extends React.Component {
     let newData = this.state.newData;
     this.setState({
       tileMenuUrlError: newData.tile_menu_url.length > 0 ? null : 'Tile menu url cannot be empty'
-    });
-  }
-  validateActionTitle = () => {
-    let newData = this.state.newData;
-    this.setState({
-      actionTitleError: newData.click_action_title.length > 0 ? null : 'Click action title cannot be empty'
     });
   }
   validateActionValue = () => {
@@ -208,23 +207,26 @@ class BellNotification extends React.Component {
     })
     let newData = this.state.newData;
     newData['notificationMessage'] = localeObj;
+    console.log(newData.notificationObject)
     this.setState({ newData });
 
     //GlobalActions.saveDraft(newData)
   }
   nextClick = (view) => {
     let data = this.state.newData
-    this.validateActionTitle()
-    this.validateActionValue()
+    
+    this.validateTitles()
     this.validateGifUrl()
     this.validatePackage()
     this.validateTileUrl()
+    this.saveDraft();
+    this.validateActionValue()
     let { packageNameError } = this.state
-    if (packageNameError) {
+    if (packageNameError && data.package_name) {
       return
     }
     for (var prop in data) {
-      if (!data[prop]) {
+      if (!data[prop] && prop !== 'click_action_title') {
         //this.setState({ errorObj: { error: `Fields marked with * are mandatory` } });
         return
       }
@@ -232,7 +234,6 @@ class BellNotification extends React.Component {
     this.setState({ errorObj: '' });
     document.getElementById("notification-form").style.display = "none";
     document.getElementById("audience").style.display = "block";
-    this.saveDraft();
     GlobalActions.saveFormData(this.state.newData);
   }
 
@@ -241,6 +242,7 @@ class BellNotification extends React.Component {
     let { formData, apiStatus, cloneData } = this.props;
 
     let { newData, removeGifImage, removeTileImage, errorObj, localeCount, locale_message_map } = this.state
+    console.log({newData})
     let options = localeList.map(item => (
       <option>{item}</option>
     ))
@@ -390,7 +392,7 @@ class BellNotification extends React.Component {
             <br />
           </div>
         </If>
-        <If condition={newData.click_action_type === 'InstallCDN' || newData.click_action_type === 'UserBrowser'}>
+        <If condition={newData.click_action_type === 'InstallCDN' || newData.click_action_type === 'UserBrowser' || newData.click_action_type === 'ApplicationBrowser'}>
           <div className="form-group required">
             <label className="control-label col-sm-3 ">
               Click Action Value
@@ -423,11 +425,11 @@ class BellNotification extends React.Component {
           </div>
         </If>
 
-        <div className="form-group required">
+        <div className="form-group ">
           <label className="control-label col-sm-3 ">Click Action Title </label>
           <div className="col-sm-6">
             <input type="text" autoComplete="off" value={newData.click_action_title} onChange={this.updatevalue.bind(this, "click_action_title")} className={`form-control ${this.state.actionTitleError ? 'is-invalid' : ''}`} />
-            <div className='invalid-feedback'>{this.state.actionTitleError}</div>
+
           </div>
           <br />
         </div>
@@ -486,17 +488,19 @@ class BellNotification extends React.Component {
             </If>
           </div> */}
         </div>
-        <div className="form-group required">
-          <label className="control-label col-sm-3 ">
-            Package Name
+        <If condition={newData.click_action_type === 'InstallPlay'}>
+          <div className="form-group required">
+            <label className="control-label col-sm-3 ">
+              Package Name
               </label>
-          <div className="col-sm-6">
-            <input type="text" autoComplete="off" onChange={this.updatevalue.bind(this, "package_name")} value={newData.package_name} className={`form-control ${this.state.packageNameError ? 'is-invalid' : ''}`} />
-            <div className='invalid-feedback'>{this.state.packageNameError}</div>
+            <div className="col-sm-6">
+              <input type="text" autoComplete="off" onChange={this.updatevalue.bind(this, "package_name")} value={newData.package_name} className={`form-control ${this.state.packageNameError ? 'is-invalid' : ''}`} />
+              <div className='invalid-feedback'>{this.state.packageNameError}</div>
 
+            </div>
+            <br />
           </div>
-          <br />
-        </div>
+        </If>
         <If condition={errorObj != null && errorObj.error != null}>
           <div className="alert alert-warning">
             <strong>Warning!</strong> {errorObj && errorObj.error}
