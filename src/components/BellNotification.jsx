@@ -19,9 +19,11 @@ class BellNotification extends React.Component {
     super(props, context);
     this.state = {
       errorObj: {},
+      titleObjError: '',
       packageNameError: '',
       tileMenuUrlError: '',
       gifUrlError: '',
+      campaignNameError: '',
       locale_message_map: {
         en: {
           message: '',
@@ -29,6 +31,7 @@ class BellNotification extends React.Component {
         }
       },
       newData: {
+        "campaign_name": '',
         'click_action_title': "",
         'click_action_type': "InstallPlay",
         'click_action_value': "MY_APP_TEXT",
@@ -37,7 +40,7 @@ class BellNotification extends React.Component {
         'show_at': "ribbon",
         'sub_tab_id': "home",
         'tile_menu_url': "",
-        "package_name":''
+        "package_name": ''
       },
       localeCount: ['en'],
       removeGifImage: false,
@@ -52,19 +55,15 @@ class BellNotification extends React.Component {
     if (document.getElementById('audience')) {
       document.getElementById('audience').style.display = 'none'
     }
-  
     let newData = this.state.newData;
     let copyData = this.props.cloneData
-    console.log(copyData,newData)
-    
     if (Object.entries(copyData).length !== 0 && copyData.constructor === Object) {
       for (var prop in newData) {
         if (copyData[prop])
           newData[prop] = copyData[prop]
-          this.updatevalue(prop,{target:{value:copyData[prop]}})
+        this.updatevalue(prop, { target: { value: copyData[prop] } })
       }
     }
-    
     if (copyData && copyData.locale_list) {
       this.setState({ localeCount: copyData.locale_list, locale_message_map: copyData.locale_message_map })
     }
@@ -88,8 +87,8 @@ class BellNotification extends React.Component {
         delete newData['sub_tab_id']
       }
       if (event.target.value === 'InstallPlay') {
-        newData.package_name=''
-      }else{
+        newData.package_name = ''
+      } else {
         delete newData['package_name']
       }
     }
@@ -105,6 +104,8 @@ class BellNotification extends React.Component {
       this.validateGifUrl()
     if (name === 'click_action_value')
       this.validateActionValue()
+    if (name === 'campaign_name')
+      this.validateCampaignName()
   };
   uploadImage = (event, name) => {
 
@@ -119,7 +120,7 @@ class BellNotification extends React.Component {
       this.setState({ newData: newData, removeTileImage: true })
       this.validateTileUrl()
     }
-    
+
     //this.setImgPreview(event)
   };
   setImgPreview = (input) => {
@@ -161,6 +162,7 @@ class BellNotification extends React.Component {
     this.setState(prevState => ({
       localeCount: [...prevState.localeCount, '']
     }))
+    setTimeout(() => { this.saveDraft() }, 0)
     // const { locale_message_map } = this.state;
     // let messageMap={}
     // Object.assign(messageMap, locale_message_map);
@@ -169,13 +171,12 @@ class BellNotification extends React.Component {
     // this.setState({locale_message_map,messageMap})
     // console.log(this.state)
   }
-  validateTitles=()=>{
-    let data = this.state.newData
-    console.log(data.notificationObject)
+  updateTitleObj = () => {
+    this.saveDraft()
   }
   validatePackage = () => {
     let newData = this.state.newData;
-    let packageNameError = !newData.package_name? 'Package name cannot be empty' : newData.package_name && newData.package_name.startsWith('com.') ? null : 'Package name should start with com.'
+    let packageNameError = !newData.package_name ? 'Package name cannot be empty' : newData.package_name && newData.package_name.startsWith('com.') ? null : 'Package name should start with com.'
     this.setState({
       packageNameError: packageNameError
     });
@@ -198,9 +199,16 @@ class BellNotification extends React.Component {
       gifUrlError: newData.gif_image_file_obj || newData.gif_url ? null : 'Ribbon gif url cannot be empty'
     });
   }
+  validateCampaignName = () => {
+    let newData = this.state.newData;
+    this.setState({
+      campaignNameError: newData.campaign_name ? null : 'Campaign name cannot be empty'
+    });
+  }
   removeLocalerow = (index) => {
     var elem = document.getElementById(`removeClass${index}`);
     elem.parentNode.removeChild(elem);
+    this.saveDraft()
   }
   onModeChanged = (param) => {
     let newData = this.state.newData;
@@ -218,22 +226,24 @@ class BellNotification extends React.Component {
     })
     let newData = this.state.newData;
     newData['notificationMessage'] = localeObj;
-    console.log(newData.notificationObject)
-    this.setState({ newData });
-
+    this.setState({ newData, titleObjError: '' });
+    localeObj.forEach((item, index) => {
+      if (!item.title || !item.message || !item.locale) {
+        this.setState({ 'titleObjError': 'Title, message and locale are mandatory' })
+      }
+    })
     //GlobalActions.saveDraft(newData)
   }
   nextClick = (view) => {
     let data = this.state.newData
-    
-    this.validateTitles()
+    this.validateCampaignName()
     this.validateGifUrl()
     this.validatePackage()
     this.validateTileUrl()
     this.saveDraft();
     this.validateActionValue()
     let { packageNameError } = this.state
-    if (packageNameError && data.package_name) {
+    if ((packageNameError && data.package_name) || this.state.titleObjError) {
       return
     }
     for (var prop in data) {
@@ -245,13 +255,12 @@ class BellNotification extends React.Component {
         if (!data[prop] && !data['time_menu_image_file_obj']) {
           return
         }
-      } else if(prop==='package_name'){
-        if (!data[prop] && data['click_action_type']==='InstallPlay') {
+      } else if (prop === 'package_name') {
+        if (!data[prop] && data['click_action_type'] === 'InstallPlay') {
           return
         }
-      }else
+      } else
         if (!data[prop] && prop !== 'click_action_title') {
-          console.log(prop)
           return
         }
     }
@@ -267,21 +276,20 @@ class BellNotification extends React.Component {
     let { formData, apiStatus, cloneData } = this.props;
 
     let { newData, removeGifImage, removeTileImage, errorObj, localeCount, locale_message_map } = this.state
-    console.log({newData})
-    let options = localeList.map(item => (
-      <option>{item}</option>
-    ))
+    // let options = localeList.map(item => (
+    //   <option>{item}</option>
+    // ))
     let notificationObject = localeCount.map((item, index) => {
       return (
         <div key={index} id={`removeClass${index}`} style={{ 'marginBottom': '11px' }}>
           <div className={"form-group "}>
             <label className="control-label col-sm-3 "> {index === 0 && 'Title'}</label>
             <div className="col-sm-2">
-              <input
+              <input autoComplete="off"
                 type="text"
                 id={`notifTitle${index}`}
                 defaultValue={locale_message_map[item] ? locale_message_map[item].title : ''}
-                //onChange={this.updateparam.bind(this, `title${index}`)}
+                onChange={this.updateTitleObj.bind(this)}
                 className="form-control"
                 placeholder="Title"
               />
@@ -295,28 +303,30 @@ class BellNotification extends React.Component {
               >{options}</select>
             </div> */}
             <div className="col-sm-2">
-              <input
+              <input autoComplete="off"
                 type="text"
                 id={`message${index}`}
                 placeholder="Message"
                 defaultValue={locale_message_map[item] ? locale_message_map[item].message : ''}
-                //onChange={this.updateparam.bind(this, "")}
+                onChange={this.updateTitleObj.bind(this)}
                 className="form-control"
               />
             </div>
             <div className="col-sm-2">
-              {index === 0 && <input
+              {index === 0 && <input autoComplete="off"
                 type="text"
                 id={`locale${index}`}
                 defaultValue={item}
                 disabled="disabled"
+                onChange={this.updateTitleObj.bind(this)}
                 className="form-control"
                 placeholder="Locale"
               />}
-              {index !== 0 && <input
+              {index !== 0 && <input autoComplete="off"
                 type="text"
                 id={`locale${index}`}
                 defaultValue={item}
+                onChange={this.updateTitleObj.bind(this)}
                 className="form-control"
                 placeholder="Locale"
               />}
@@ -327,6 +337,7 @@ class BellNotification extends React.Component {
                 <span className="glyphicon glyphicon-minus" aria-hidden="true"></span>
               </button>}
             </div>
+
           </div>
           {/* <div className="form-group required">
             <label className="control-label col-sm-3 ">Description </label>
@@ -346,7 +357,22 @@ class BellNotification extends React.Component {
     return <div>
 
       <form id="notification-form">
+        <div className="form-group required">
+          <label className="control-label col-sm-3">Campaign Name</label>
+          <div className="col-sm-6">
+            <input type="text" id="campaign_name" autoComplete="off" value={newData.campaign_name} onChange={this.updatevalue.bind(this, "campaign_name")} className={`form-control ${this.state.campaignNameError ? 'is-invalid' : ''}`} />
+            <div className='invalid-feedback'>{this.state.campaignNameError}</div>
+          </div>
+        </div>
         {notificationObject}
+        <If condition={this.state.titleObjError != ''}>
+          <div className="form-group" style={{ 'marginBottom': '0', 'marginTop': '-26px' }}>
+            <label className="control-label col-sm-3"></label>
+            <div className="col-sm-6">
+              <div className='invalid-feedback'>{this.state.titleObjError}</div>
+            </div>
+          </div>
+        </If>
         <div className="form-group required">
           <label className="control-label col-sm-3">Ribbon gif URL</label>
           <div className="col-sm-6">
@@ -354,7 +380,7 @@ class BellNotification extends React.Component {
             <div className='invalid-feedback'>{this.state.gifUrlError}</div>
           </div>
           <div className="col-sm-3">
-            <input type="file" name="" id="gif_image_file_obj"  accept='image/*' onChange={(e) => this.uploadImage(e, 'gif_image_file_obj')} />
+            <input type="file" name="" id="gif_image_file_obj" accept='image/*' onChange={(e) => this.uploadImage(e, 'gif_image_file_obj')} />
             <If condition={removeGifImage}>
               <button style={{ position: "absolute", right: "0px", width: "30px", height: "30px" }} type="button" onClick={this.removeGifImageAction} className="close" aria-label="Close">
                 <span aria-hidden="true">&times;</span>

@@ -14,7 +14,7 @@ class ButtonBar extends React.Component {
     }
     return (
       <div className="nav-btn col-sm-12">
-        <button
+        <button id="back-btn" 
           type="button"
           onClick={this.props.backClick}
           className="btn btn-success btn-md"
@@ -28,7 +28,7 @@ class ButtonBar extends React.Component {
         >
           <span> Save as Draft</span>
         </button> */}
-        <button
+        <button id="next-btn" 
           type="button"
           onClick={this.props.nextClick}
           className="btn btn-success btn-md"

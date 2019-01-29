@@ -8,7 +8,7 @@ export class RotationStore {
     this.apiStatus = null;
     this.channelType = 'dashboard'
     this.currentView = 'new'
-    this.allData=null
+    this.allData = null
     this.formData = {}
     this.cloneData = {}
     this.showDetails = false
@@ -28,7 +28,7 @@ export class RotationStore {
     this.cloneData = {}
   }
   onSetCurrentView(attr) {
-    this.currentView=attr
+    this.currentView = attr
   }
   onShowCampaignDetails = (flag) => {
     this.showDetails = flag
@@ -61,13 +61,13 @@ export class RotationStore {
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
-      if(json.success){
+      if (json.success) {
         this.allData = json.results
-        if(this.allData && this.allData.length===0){
+        if (this.allData && this.allData.length === 0) {
           this.apiStatus = { success: 'No data found' }
         }
-        if (!showSaveMessage && this.allData.length>0)
-        this.apiStatus = ''
+        if (!showSaveMessage && this.allData.length > 0)
+          this.apiStatus = ''
         if (Array.isArray(this.allData) && this.allData.length > 0) {
           this.allData.forEach((item, index) => {
             item.key = index + 1
@@ -78,8 +78,8 @@ export class RotationStore {
             }
           })
         }
-        
-      }else{
+
+      } else {
         this.apiStatus = { error: 'some error occured, please try again' }
       }
 
@@ -89,26 +89,33 @@ export class RotationStore {
     this.emitChange()
   }
   onViewStats = async (id) => {
-    // let url = `${this.apiUrl}rotation_cms`;
-    // try {
-    //   const data = await this.fetchData(url)
-    //   const json = await data.json()
-    //   this.allData.forEach((item, index) => {
-    //   if(item.campaign_id===id){
-    //   item.stats=json
-    //   }
-    // })
-    // } catch (e) {
-    //   console.error("Problem", e)
-    // }
-    this.allData.forEach((item, index) => {
-      if (item.campaign_id === id) {
-        //item.stats=100
+    this.apiStatus = 'loading'
+    let url = `${this.apiUrl}notifications/cms/v2/stats`;
+    try {
+      const data = await this.fetchData(url)
+      const json = await data.json()
+      this.apiStatus = ''
+      if (json && json.results ) {
+        this.allData.forEach((item, index) => {
+          item.stats = {}
+          let obj = json.results[item.campaign_id]
+          if (obj) {
+            item.stats.NotificationDrawerItemClicked = obj.NotificationDrawerItemClicked
+            item.stats.RibbonClicked = obj.RibbonClicked
+            item.stats.RibbonShown = obj.RibbonShown
+          } else {
+            item.stats = ''
+          }
+        })
       }
-    })
+    } catch (e) {
+      this.apiStatus = ''
+      console.error("Problem", e)
+    }
+    this.emitChange()
   }
   onSaveAudienceDraft = async (formData) => {
-    let url = `${this.apiUrl}rotation_cms`;
+    let url = `${this.apiUrl}/notifications/cms/stats/v2`;
     try {
       const data = await this.fetchData(url)
       const json = await data.json()
@@ -155,11 +162,11 @@ export class RotationStore {
       if (tempData.audienceType) {
         delete tempData.audienceType
       }
-      if(tempData.gif_image_file_obj){
+      if (tempData.gif_image_file_obj) {
         delete tempData.gif_url
       }
-      if(tempData.gif_image_file_obj){
-        delete tempData.time_menu_image_file_obj
+      if (tempData.time_menu_image_file_obj) {
+        delete tempData.tile_menu_url
       }
     }
     if (audienceData && audienceData[0] === 'filters') {
@@ -168,7 +175,7 @@ export class RotationStore {
       if (audienceData[1]) {
         fd.append('campaign_start_time', audienceData[2][0])
         fd.append('campaign_end_time', audienceData[2][1])
-      //  this.formData.campaign_start_time = audienceData[2][0]
+        //  this.formData.campaign_start_time = audienceData[2][0]
         //this.formData.campaign_end_time = audienceData[2][1]
       }
     } else if (audienceData && audienceData[0] === 'guid') {

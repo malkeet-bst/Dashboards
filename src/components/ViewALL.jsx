@@ -18,9 +18,15 @@ class ViewAll extends React.Component {
       dataIndex: 'key',
       width: 70
     }, {
-      title: 'Campaign Name',
+      title: 'Campaign Id',
       dataIndex: 'campaign_id',
-      width: 200,
+      width: 150
+
+    }, {
+      title: 'Campaign Name',
+      dataIndex: 'campaign_name',
+      width: 100,
+      //render: (text, row) => <div style={{'textAlign':'left'}}>name</div>
 
     }, {
       title: 'Campaign Details',
@@ -31,7 +37,7 @@ class ViewAll extends React.Component {
       title: 'Campaign Action',
       dataIndex: 'action',
       width: 150,
-      render: (text, row) => <div style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>
+      render: (text, row) => <div style={{ 'textAlign': 'left', 'display': 'flex', 'justifyContent': 'space-evenly' }}>
         {/* <span onClick={() => this.pause()} className="action-icon glyphicon glyphicon-pause"></span>
         <If condition={false}> <span onClick={() => this.stop()} className="action-icon glyphicon glyphicon-play"></span></If> */}
         <button type="button" className="btn btn-link"><span onClick={() => this.edit(text, row)} className="action-icon glyphicon glyphicon-edit"></span></button>
@@ -41,28 +47,35 @@ class ViewAll extends React.Component {
     }, {
       title: 'validity',
       dataIndex: 'validity',
-      width: 200,
+      width: 200
 
     }, {
       title: 'Audience',
       dataIndex: 'audience',
-      //width: 250
-    }, 
+      width: 250
+    },
     // {
     //   title: 'Status',
     //   dataIndex: 'campaign_status',
     //   width: 100
     // },
-    //  {
-    //   title: 'Reports',
-    //   dataIndex: 'stats',
-    //   width: 100,
-    //   render: (text, row) => <div style={{'textAlign':'center'}}><If condition={text!==undefined}>{text}</If>
-    //   <If condition={text===undefined}><button type="button" className="btn btn-link" onClick={() => this.downloadStats(row)} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download</button >
-    //   </If>
-    //   </div>
-    // }
-  ];
+    {
+      title: <button type="button" className="btn btn-link" onClick={() => this.downloadStats()} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download Report</button >,
+      dataIndex: 'stats',
+      width: 250,
+      render: (text, row) => <div style={{ 'textAlign': 'left' }}>
+        <If condition={row && typeof (row.stats) == "object"}><div style={{ 'display': 'flex', 'flexDirection': 'column' }}>
+          {row && row.stats && <span>Bell clicks : {row.stats.NotificationDrawerItemClicked}</span>}
+          {row && row.stats && <span>Ribbon clicks : {row.stats.RibbonClicked}</span>}
+          {row && row.stats && <span>Ribbon Impression : {row.stats.RibbonShown}</span>}
+        </div>
+        </If>
+        <If condition={row && typeof (row.stats) != "object"}>NA
+      {/* <button type="button" className="btn btn-link" onClick={() => this.downloadStats(row)} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download</button > */}
+        </If>
+      </div>
+    }
+    ];
 
 
     this.state = this.getUpdatedState();
@@ -99,7 +112,7 @@ class ViewAll extends React.Component {
         }
       ]
     })
-    
+
   }
   edit = (text, row) => {
     GlobalActions.cloneNotificationData(row.key - 1)
@@ -117,7 +130,7 @@ class ViewAll extends React.Component {
     table = document.getElementById("myTable");
     tr = table.getElementsByTagName("tr");
     for (i = 1; i < tr.length; i++) {
-      let tdString = tr[i].getElementsByTagName("td")[1].textContent
+      let tdString = tr[i].getElementsByTagName("td")[2].textContent
       if (tdString.toUpperCase().indexOf(filter) > -1) {
         tr[i].style.display = "";
       } else {
@@ -128,8 +141,8 @@ class ViewAll extends React.Component {
   refreshData = () => {
     GlobalActions.viewAllData()
   }
-  downloadStats=(row)=>{
-    GlobalActions.viewStats(row.campaign_id)
+  downloadStats = () => {
+    GlobalActions.viewStats()
   }
   handleOk = (e) => {
     GlobalActions.showCampaignDetails(false);
@@ -151,7 +164,7 @@ class ViewAll extends React.Component {
     }
     let messageObject = ''
     if (cloneData && Object.entries(cloneData).length !== 0 && cloneData.constructor === Object && cloneData.locale_message_map) {
-      messageObject = Object.keys(cloneData.locale_message_map).map((key,index) => {
+      messageObject = Object.keys(cloneData.locale_message_map).map((key, index) => {
         return (
           <div key={index}>
             <li className="list-group-item list-group-item-light">Locale : {key}, Title : {cloneData.locale_message_map[key].title}, Message : {cloneData.locale_message_map[key].message}
@@ -188,15 +201,16 @@ class ViewAll extends React.Component {
                 </Button>,
               ]}
             >
-              <ul style={{'paddingLeft':'0'}}>
-                <li className="list-group-item list-group-item-light"><div>Campaign Name : {cloneData.campaign_id}</div></li>
+              <ul style={{ 'paddingLeft': '0' }}>
+                <li className="list-group-item list-group-item-light"><div>Campaign Name : {cloneData.campaign_name}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Campaign Id : {cloneData.campaign_id}</div></li>
                 <li className="list-group-item list-group-item-light"><div> Campaign Status : {cloneData.campaign_status}</div></li>
-                <If condition={cloneData.audience !=''}>
-                <li className="list-group-item list-group-item-light"><div>Audience : {cloneData.audience}</div></li>
-                <li className="list-group-item list-group-item-light"><div>Campaign Validity : {cloneData.campaign_start_time} - {cloneData.campaign_end_time}</div></li>
+                <If condition={cloneData.audience != ''}>
+                  <li className="list-group-item list-group-item-light"><div>Audience : {cloneData.audience}</div></li>
+                  <li className="list-group-item list-group-item-light"><div>Campaign Validity : {cloneData.campaign_start_time} - {cloneData.campaign_end_time}</div></li>
                 </If>
                 {messageObject}
-                <li className="list-group-item list-group-item-light"><div>Ribbon gif url :<img styles={{'height':'50px'}} src={cloneData.gif_url} alt={cloneData.gif_url} /></div></li>
+                <li className="list-group-item list-group-item-light"><div>Ribbon gif url :<img styles={{ 'height': '50px' }} src={cloneData.gif_url} alt={cloneData.gif_url} /></div></li>
                 <li className="list-group-item list-group-item-light"><div>Action title : {cloneData.click_action_title}</div></li>
                 <li className="list-group-item list-group-item-light"><div>Action type : {cloneData.click_action_type}</div></li>
                 <If condition={cloneData.click_action_type === 'SettingsMenu' || cloneData.click_action_type === 'HomeAppTab' || cloneData.click_action_type === 'UserBrowser' || cloneData.click_action_type === 'InstallCDN'}>
@@ -208,7 +222,7 @@ class ViewAll extends React.Component {
                 <If condition={cloneData.click_action_value === 'APP_CENTER_TEXT' && cloneData.click_action_type === 'HomeAppTab'}>
                   <li className="list-group-item list-group-item-light"><div>Action id : {cloneData.sub_tab_id}</div></li>
                 </If>
-                <li className="list-group-item list-group-item-light"><div>Image url : {cloneData.tile_menu_url}</div></li>
+                <li className="list-group-item list-group-item-light"><div>Image url : <img styles={{ 'height': '50px' }} src={cloneData.tile_menu_url} alt={cloneData.tile_menu_url} /></div></li>
 
               </ul>
             </Modal>

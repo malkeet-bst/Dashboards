@@ -59,7 +59,6 @@ class Audience extends React.Component {
 
   }
   onChange = (date, dateString) => {
-    console.log(dateString)
     this.setState({ validity: date, apiStatus: '',time:dateString});
   }
   changeTab = () => {
@@ -91,9 +90,10 @@ class Audience extends React.Component {
     GlobalActions.saveAudienceDraft()
   }
   publishCamp = () => {
+
     if (this.state.audienceType === 'filters') {
       if (!this.state.audience) {
-        this.setState({ apiStatus: { error: "Enter filters and validity" } })
+        this.setState({ apiStatus: { error: "Enter audience and validity" } })
       } else if (this.state.audience && (!this.state.time || !this.state.time[0])) {
         this.setState({ apiStatus: { error: "Validity is mandatory for creating filter" } })
       } else {
@@ -116,7 +116,6 @@ class Audience extends React.Component {
 
   }
   onModeChanged = (param) => {
-    console.log('mode change',this.state)
     this.setState({ audienceType: param })
   }
   render() {
@@ -199,7 +198,9 @@ class Audience extends React.Component {
                 </div> */}
             </div>
           </If>
+          <If condition={apiStatus==''}>
           <ButtonBar nextString="Send" backClick={this.changeTab} saveClick={this.saveDraft} nextClick={() => this.sendClick("audience")} />
+          </If>
         </form>
       </section>
     </div>;
