@@ -103,7 +103,7 @@ class ViewAll extends React.Component {
   }
   edit = (text, row) => {
     GlobalActions.cloneNotificationData(row.key - 1)
-    GlobalActions.setCurrentView('home', 'new')
+    GlobalActions.setCurrentView('new')
     GlobalActions.setChannel('bell')
   }
   viewDetails = (row) => {
@@ -191,7 +191,7 @@ class ViewAll extends React.Component {
               <ul style={{'paddingLeft':'0'}}>
                 <li className="list-group-item list-group-item-light"><div>Campaign Name : {cloneData.campaign_id}</div></li>
                 <li className="list-group-item list-group-item-light"><div> Campaign Status : {cloneData.campaign_status}</div></li>
-                <If condition={cloneData.audience}>
+                <If condition={cloneData.audience !=''}>
                 <li className="list-group-item list-group-item-light"><div>Audience : {cloneData.audience}</div></li>
                 <li className="list-group-item list-group-item-light"><div>Campaign Validity : {cloneData.campaign_start_time} - {cloneData.campaign_end_time}</div></li>
                 </If>

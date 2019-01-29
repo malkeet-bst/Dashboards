@@ -26,7 +26,8 @@ class Main extends React.Component {
     if(tab==='view'){
       GlobalActions.viewAllData()
     }
-    GlobalActions.setCurrentView('dashboard',tab)
+    GlobalActions.setCurrentView(tab)
+    GlobalActions.setChannel('dashboard')
   }
 
   componentDidMount = () => {
@@ -36,10 +37,10 @@ class Main extends React.Component {
     RotationStore.unlisten(this.onChange);
   };
   render() {
-    let { activeTab,channelType, currentView,formData,apiStatus,cloneData } = this.state.RotationS
+    let { currentView,channelType,formData,apiStatus,cloneData } = this.state.RotationS
     return <div className="notification-container" >
-      <SideBar activeTab={activeTab} changeTab={this.changeTab} />
-      <MainContent channelType={channelType} currentView={currentView} activeTab={activeTab} cloneData={cloneData} formData={formData} apiStatus={apiStatus}/>
+      <SideBar currentView={currentView} changeTab={this.changeTab} />
+      <MainContent channelType={channelType} currentView={currentView} cloneData={cloneData} formData={formData} apiStatus={apiStatus}/>
     </div>
   }
 }

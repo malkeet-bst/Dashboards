@@ -65,7 +65,6 @@ class Audience extends React.Component {
   changeTab = () => {
     document.getElementById('notification-form').style.display = 'block'
     document.getElementById('audience').style.display = 'none'
-    GlobalActions.setCurrentView('home')
   }
   sendClick = () => {
     confirmAlert({

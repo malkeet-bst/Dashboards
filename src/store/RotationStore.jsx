@@ -5,13 +5,9 @@ import Utils from "../utils/util";
 export class RotationStore {
   constructor() {
     window.RotationStore = this;
-    this.rotationData = null;
-    this.partnerList = null;
     this.apiStatus = null;
-    this.currentView = ''
-    this.channelType = ''
-    this.templateData = ''
-    this.activeTab = 'new'
+    this.channelType = 'dashboard'
+    this.currentView = 'new'
     this.allData=null
     this.formData = {}
     this.cloneData = {}
@@ -32,17 +28,8 @@ export class RotationStore {
     this.cloneData = {}
   }
   onSetCurrentView(attr) {
-    this.apiStatus = ''
-    if (typeof attr == 'object') {
-      this.currentView = attr[0];
-      this.activeTab = attr[1];
-    } else {
-      this.currentView = attr;
-    }
+    this.currentView=attr
   }
-  onSetSelectedPartner = partner => {
-    this.selectedPartner = partner;
-  };
   onShowCampaignDetails = (flag) => {
     this.showDetails = flag
   }
@@ -50,7 +37,6 @@ export class RotationStore {
     this.channelType = 'bell'
     this.apiStatus = ''
     Object.assign(this.cloneData, this.formData)
-    this.onSetCurrentView('home', 'new')
     let data = this.allData[index]
     this.cloneData = JSON.parse(data.notification_data)
     this.cloneData.audience = data.audience
@@ -116,14 +102,6 @@ export class RotationStore {
         //item.stats=100
       }
     })
-  }
-  onSaveDraft = async (formData) => {
-    let url = `${this.apiUrl}rotation_cms`;
-    try {
-      const data = await this.fetchData(url)
-      const json = await data.json()
-    } catch (e) {
-    }
   }
   onSaveAudienceDraft = async (formData) => {
     let url = `${this.apiUrl}rotation_cms`;
@@ -208,10 +186,9 @@ export class RotationStore {
     if (response && (response.status === 200 || response.status === 304)) {
       let user = await response.json();
       if (user && user.success) {
-        this.activeTab = 'view'
+        this.currentView = 'view'
         this.onViewAllData(true)
         this.apiStatus = { success: "Campaign created successfully" };
-        // this.onSetCurrentView('dashboard','view')
       } else {
         this.apiStatus = { error: user.message || 'some error occured' };
       }
@@ -226,9 +203,6 @@ export class RotationStore {
 
   }
 
-  onCopyTemplate = (data) => {
-    this.templateData = data
-  }
 }
 
 

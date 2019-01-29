@@ -13,19 +13,18 @@ class NewNotification extends React.Component {
     }
     GlobalActions.saveFormData({});
     GlobalActions.clearData()
-    GlobalActions.setCurrentView('home')
     GlobalActions.setChannel('bell')
   }
 
   render() {
-    let { show, channelType, currentView ,formData,apiStatus,cloneData} = this.props;
+    let { show, channelType, formData,apiStatus,cloneData} = this.props;
 
     return (
       <div>
         <If condition={show}>
           <div className="new">
             <header><h2>Create New Notification</h2></header>
-            <If condition={currentView === 'dashboard' || currentView===''}>
+           <If condition={channelType=='dashboard'}>
               <section>
                 <h4> Select Channel</h4>
                 <article className="channel-box">
@@ -46,8 +45,8 @@ class NewNotification extends React.Component {
             <strong>Success!</strong> {apiStatus && apiStatus.success}
           </div>
         </If> */}
-          <If condition={channelType === 'bell' && currentView !='dashboard'}>
-            <BellNotification currentView={currentView} apiStatus ={apiStatus} cloneData={cloneData} formData={formData}/>
+          <If condition={channelType === 'bell'}>
+            <BellNotification apiStatus ={apiStatus} cloneData={cloneData} formData={formData}/>
           </If>
           <If condition={apiStatus == "loading"}>
           <div className="page-loader" />

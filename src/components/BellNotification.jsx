@@ -21,8 +21,8 @@ class BellNotification extends React.Component {
       errorObj: {},
       packageNameError: '',
       tileMenuUrlError: '',
-      actionTitleError:'',
-      gifUrlError:'',
+      actionTitleError: '',
+      gifUrlError: '',
       locale_message_map: {
         en: {
           message: '',
@@ -93,11 +93,11 @@ class BellNotification extends React.Component {
       this.validatePackage()
     if (name === 'tile_menu_url')
       this.validateTileUrl()
-      if(name==='click_action_title')
+    if (name === 'click_action_title')
       this.validateActionTitle()
-      if(name==='gif_url')
+    if (name === 'gif_url')
       this.validateGifUrl()
-      if(name==='click_action_value')
+    if (name === 'click_action_value')
       this.validateActionValue()
   };
   uploadImage = (event, name) => {
@@ -139,11 +139,11 @@ class BellNotification extends React.Component {
     newData.action = selectedAction.value;
     this.setState({ selectedAction, newData });
   };
-  changeTab = () => {
+  backClick = () => {
     if (document.getElementById('notification-form')) {
       document.getElementById('notification-form').style.display = 'none'
     }
-    GlobalActions.setCurrentView('dashboard')
+    GlobalActions.setChannel('dashboard')
   }
   addLocaleRow = () => {
     this.setState(prevState => ({
@@ -182,7 +182,7 @@ class BellNotification extends React.Component {
       actionValueError: newData.click_action_value && newData.click_action_value.length > 0 ? null : 'Click action value cannot be empty'
     });
   }
-  validateGifUrl=()=>{
+  validateGifUrl = () => {
     let newData = this.state.newData;
     this.setState({
       gifUrlError: newData.gif_url.length > 0 ? null : 'Ribbon gif url cannot be empty'
@@ -219,8 +219,8 @@ class BellNotification extends React.Component {
     this.validateGifUrl()
     this.validatePackage()
     this.validateTileUrl()
-    let {packageNameError}=this.state
-    if(packageNameError){
+    let { packageNameError } = this.state
+    if (packageNameError) {
       return
     }
     for (var prop in data) {
@@ -234,13 +234,11 @@ class BellNotification extends React.Component {
     document.getElementById("audience").style.display = "block";
     this.saveDraft();
     GlobalActions.saveFormData(this.state.newData);
-    GlobalActions.setCurrentView(view);
-
   }
 
   render() {
 
-    let { currentView, formData, apiStatus, cloneData } = this.props;
+    let { formData, apiStatus, cloneData } = this.props;
 
     let { newData, removeGifImage, removeTileImage, errorObj, localeCount, locale_message_map } = this.state
     let options = localeList.map(item => (
@@ -428,7 +426,7 @@ class BellNotification extends React.Component {
         <div className="form-group required">
           <label className="control-label col-sm-3 ">Click Action Title </label>
           <div className="col-sm-6">
-            <input type="text" autoComplete="off" value={newData.click_action_title} onChange={this.updatevalue.bind(this, "click_action_title")}  className={`form-control ${this.state.actionTitleError ? 'is-invalid' : ''}`} />
+            <input type="text" autoComplete="off" value={newData.click_action_title} onChange={this.updatevalue.bind(this, "click_action_title")} className={`form-control ${this.state.actionTitleError ? 'is-invalid' : ''}`} />
             <div className='invalid-feedback'>{this.state.actionTitleError}</div>
           </div>
           <br />
@@ -504,12 +502,9 @@ class BellNotification extends React.Component {
             <strong>Warning!</strong> {errorObj && errorObj.error}
           </div>
         </If>
-        <ButtonBar backClick={this.changeTab} saveClick={this.saveDraft} nextClick={() => this.nextClick("audience")} />
+        <ButtonBar backClick={this.backClick} saveClick={this.saveDraft} nextClick={() => this.nextClick("audience")} />
       </form>
-
-      {/* <If condition={currentView === "audience"}> */}
       <Audience apiStatus={apiStatus} formData={formData} cloneData={cloneData} />
-      {/* </If> */}
     </div>;
   }
 }
