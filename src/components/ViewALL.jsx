@@ -60,7 +60,7 @@ class ViewAll extends React.Component {
     //   width: 100
     // },
     {
-      title: <button type="button" className="btn btn-link" onClick={() => this.downloadStats()} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>Download Report</button >,
+      title: <button type="button" className="btn btn-link" onClick={() => this.downloadStats()} style={{ 'display': 'flex', 'justifyContent': 'space-evenly' }}>View Report</button >,
       dataIndex: 'stats',
       width: 250,
       render: (text, row) => <div style={{ 'textAlign': 'left' }}>

@@ -360,7 +360,7 @@ class BellNotification extends React.Component {
         <div className="form-group required">
           <label className="control-label col-sm-3">Campaign Name</label>
           <div className="col-sm-6">
-            <input type="text" id="campaign_name" autoComplete="off" value={newData.campaign_name} onChange={this.updatevalue.bind(this, "campaign_name")} className={`form-control ${this.state.campaignNameError ? 'is-invalid' : ''}`} />
+            <input type="text" autoFocus id="campaign_name" autoComplete="off" value={newData.campaign_name} onChange={this.updatevalue.bind(this, "campaign_name")} className={`form-control ${this.state.campaignNameError ? 'is-invalid' : ''}`} />
             <div className='invalid-feedback'>{this.state.campaignNameError}</div>
           </div>
         </div>

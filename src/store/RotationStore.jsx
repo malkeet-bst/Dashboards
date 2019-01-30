@@ -39,6 +39,7 @@ export class RotationStore {
     Object.assign(this.cloneData, this.formData)
     let data = this.allData[index]
     this.cloneData = JSON.parse(data.notification_data)
+    this.cloneData.campaign_name=data.campaign_name
     this.cloneData.audience = data.audience
     this.cloneData.campaign_id = data.campaign_id
     this.cloneData.campaign_status = data.campaign_status
