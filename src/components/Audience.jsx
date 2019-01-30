@@ -174,12 +174,12 @@ class Audience extends React.Component {
               </label>
               <div className="col-sm-6">
                 <TextArea className="hashtags_input form-control" value={audience} onChange={this.updateval.bind(this, "audience")} placeholder="Enter hashtags seperated by comma like #country_US,#age-day_0_0 without any spaces in between" />
-                <button type="button" className="btn btn-link" onMouseEnter={() => this.onShowFilter(true)}>
+                <button type="button" className="btn btn-link" onClick={() => this.onShowFilter(true)}>
                   Filter ?
                   </button>
               </div>
             </div>
-            <Modal title="HashTags Examples" visible={showFilters} centered onMouseLeave={() => alert()} maskClosable={true} footer={null} onCancel={() => this.onShowFilter(false)}>
+            <Modal title="HashTags Examples" visible={showFilters} centered maskClosable={true} footer={null} onCancel={() => this.onShowFilter(false)}>
               <ul style={{ paddingLeft: "0" }}>
                 <table class="table table-striped">
                   <thead>
