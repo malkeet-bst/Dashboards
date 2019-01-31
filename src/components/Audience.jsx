@@ -181,7 +181,7 @@ class Audience extends React.Component {
             </div>
             <Modal title="HashTags Examples" visible={showFilters} centered maskClosable={true} footer={null} onCancel={() => this.onShowFilter(false)}>
               <ul style={{ paddingLeft: "0" }}>
-                <table class="table table-striped">
+                <table className="table table-striped">
                   <thead>
                     <tr>
                       <th>Hashtag</th>

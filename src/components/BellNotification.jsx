@@ -413,14 +413,14 @@ class BellNotification extends React.Component {
             <div className="col-sm-6">
               <select className="form-control" value={newData.click_action_value} id="click_action_type" onChange={this.updatevalue.bind(this, "click_action_value")} name="click_action_value" required>
                 {/* <option value="">Select Action</option> */}
-                <option value="DISPLAY_SETTINGS_TEXT">DISPLAY_SETTINGS_TEXT</option>
-                <option value="ENGINE_SETTING_TEXT">ENGINE_SETTING_TEXT</option>
-                <option value="BOSSKEY_SETTING_TEXT">BOSSKEY_SETTING_TEXT</option>
-                <option value="Notification Text">Notification Text</option>
-                <option value="PREFERENCES_TEXT">PREFERENCES_TEXT</option>
-                <option value="BACKUPRESTORE_SETTING_TEXT">BACKUPRESTORE_SETTING_TEXT</option>
-                <option value="UPDATE_SETTING_TEXT">UPDATE_SETTING_TEXT</option>
-                <option value="ABOUT_SETTING_TEXT">ABOUT_SETTING_TEXT</option>
+                <option value="STRING_DISPLAY_SETTINGS">STRING_DISPLAY_SETTINGS</option>
+                <option value="STRING_ENGINE_SETTING">STRING_ENGINE_SETTING</option>
+                <option value="STRING_BOSSKEY_SETTING">STRING_BOSSKEY_SETTING</option>
+                <option value="STRING_NOTIFICATION">STRING_NOTIFICATION</option>
+                <option value="STRING_PREFERENCES">STRING_PREFERENCES</option>
+                <option value="STRING_BACKUPRESTORE_SETTING">STRING_BACKUPRESTORE_SETTING</option>
+                <option value="STRING_UPDATE_SETTING">STRING_UPDATE_SETTING</option>
+                <option value="STRING_ABOUT_SETTING">STRING_ABOUT_SETTING</option>
               </select>
               {/* <input type="text" value={newData.click_action_value} onChange={this.updatevalue.bind(this, "click_action_value")} className="form-control" /> */}
             </div>

@@ -210,7 +210,7 @@ class ViewAll extends React.Component {
                   <li className="list-group-item list-group-item-light"><div>Campaign Validity : {cloneData.campaign_start_time} - {cloneData.campaign_end_time}</div></li>
                 </If>
                 {messageObject}
-                <li className="list-group-item list-group-item-light"><div>Ribbon gif url :<img styles={{ 'height': '50px' }} src={cloneData.gif_url} alt={cloneData.gif_url} /></div></li>
+                <li className="list-group-item list-group-item-light"><div>Ribbon gif url : <img style={{ 'height': '90px' }} src={cloneData.gif_url} alt={cloneData.gif_url} /></div></li>
                 <li className="list-group-item list-group-item-light"><div>Action title : {cloneData.click_action_title}</div></li>
                 <li className="list-group-item list-group-item-light"><div>Action type : {cloneData.click_action_type}</div></li>
                 <If condition={cloneData.click_action_type === 'SettingsMenu' || cloneData.click_action_type === 'HomeAppTab' || cloneData.click_action_type === 'UserBrowser' || cloneData.click_action_type === 'InstallCDN'}>
@@ -222,7 +222,7 @@ class ViewAll extends React.Component {
                 <If condition={cloneData.click_action_value === 'APP_CENTER_TEXT' && cloneData.click_action_type === 'HomeAppTab'}>
                   <li className="list-group-item list-group-item-light"><div>Action id : {cloneData.sub_tab_id}</div></li>
                 </If>
-                <li className="list-group-item list-group-item-light"><div>Image url : <img styles={{ 'height': '50px' }} src={cloneData.tile_menu_url} alt={cloneData.tile_menu_url} /></div></li>
+                <li className="list-group-item list-group-item-light"><div>Image url : <img style={{ 'height': '90px' }} src={cloneData.tile_menu_url} alt={cloneData.tile_menu_url} /></div></li>
 
               </ul>
             </Modal>
