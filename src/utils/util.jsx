@@ -16,10 +16,10 @@ export default class Utils {
   static getUrlFromInstance(instance) {
     let url
     if (instance === "prod") {
-      url = "https://notif-v2-dot-bluestacks-cloud.appspot.com/"
+      url = "https://bluestacks-cloud.appspot.com/"
     } else {
       //engg
-      url = "https://notif-v2-dot-bs3-appcenter-engg.appspot.com/"
+      url = "https://bs3-appcenter-engg.appspot.com/"
     }
     return url
   }
