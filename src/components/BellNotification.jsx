@@ -73,11 +73,11 @@ class BellNotification extends React.Component {
     let newData = this.state.newData;
     newData[name] = event.target.value;
     if (name === 'click_action_type') {
-      if (event.target.value === 'HomeAppTab') {
+      if (event.target.value === 'HomeAppTab' && !newData['click_action_value']) {
         newData['click_action_value'] = 'MY_APP_TEXT'
       }
       else if (event.target.value === 'SettingsMenu') {
-        newData['click_action_value'] = 'DISPLAY_SETTINGS_TEXT'
+        newData['click_action_value'] = newData['click_action_value'] || 'STRING_DISPLAY_SETTINGS'
         delete newData['sub_tab_id']
       } else if (event.target.value === 'InstallCDN' || event.target.value === 'UserBrowser' || event.target.value === 'ApplicationBrowser') {
         newData['click_action_value'] = ''
@@ -92,8 +92,8 @@ class BellNotification extends React.Component {
         delete newData['package_name']
       }
     }
-    if (name === 'click_action_value') {
-      newData['sub_tab_id'] = 'home'
+    if (name === 'click_action_value' && newData[name]==='APP_CENTER_TEXT') {
+      newData['sub_tab_id'] = newData['sub_tab_id'] || 'home'
     }
     this.setState({ newData });
     if (name === 'package_name')
@@ -244,23 +244,29 @@ class BellNotification extends React.Component {
     this.validateActionValue()
     let { packageNameError } = this.state
     if ((packageNameError && data.package_name) || this.state.titleObjError) {
+      console.log('1')
       return
     }
     for (var prop in data) {
       if (prop === 'gif_url') {
         if (!data[prop] && !data['gif_image_file_obj']) {
+          console.log('1')
           return
         }
       } else if (prop === 'tile_menu_url') {
         if (!data[prop] && !data['time_menu_image_file_obj']) {
+          console.log('1')
           return
         }
       } else if (prop === 'package_name') {
         if (!data[prop] && data['click_action_type'] === 'InstallPlay') {
+          console.log('1')
           return
         }
       } else
+      
         if (!data[prop] && prop !== 'click_action_title') {
+          console.log('1')
           return
         }
     }
@@ -505,7 +511,7 @@ class BellNotification extends React.Component {
                 </label>
             <label className="radio-inline">
               <input type="radio" name="site_name"
-                value="sticky"
+                value="dropdown"
                 checked={newData.show_at === 'dropdown'}
                 onChange={() => this.onModeChanged('dropdown')} />Dropdown
                 </label>

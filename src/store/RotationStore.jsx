@@ -173,12 +173,12 @@ export class RotationStore {
     if (audienceData && audienceData[0] === 'filters') {
       fd.append('hashtags', audienceData[1])
       //this.formData.hashtags = audienceData[1]
-      if (audienceData[1]) {
-        fd.append('campaign_start_time', audienceData[2][0])
-        fd.append('campaign_end_time', audienceData[2][1])
-        //  this.formData.campaign_start_time = audienceData[2][0]
-        //this.formData.campaign_end_time = audienceData[2][1]
-      }
+      
+        fd.append('campaign_start_time', audienceData[2])
+        fd.append('campaign_end_time', audienceData[3])
+        //  this.formData.campaign_start_time = audienceData[2]
+        //this.formData.campaign_end_time = audienceData[3]
+      
     } else if (audienceData && audienceData[0] === 'guid') {
       fd.append('csv', audienceData[1])
     }
